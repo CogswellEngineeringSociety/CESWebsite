@@ -44,7 +44,9 @@ class PrintingPage extends Component{
 
 
         const auth = fire.auth();
-        auth.signInWithEmailAndPassword("princebasiga@gmail.com","Cplus2x2Unity")
+        //This was good learning, and will require this sign in for client side.
+        //but prio is sending get request
+       /* auth.signInWithEmailAndPassword("princebasiga@gmail.com","Cplus2x2Unity")
             .then(user => {if (user) {
 
                 const storage = fire.storage().ref("3DPrinterQueue/"+this.state.fileUploaded.name);
@@ -72,8 +74,43 @@ class PrintingPage extends Component{
             }})
         
 
-      
+      */
+     this.uploadSecurely()
+
+            .then( res => {console.log(res);})
         
+    }
+
+    uploadSecurely = async() => {
+
+        const data = new FormData();
+        data.append('file', this.state.fileUploaded);
+        //Will put in url of other server here
+        const response = await fetch("https://middleman2.herokuapp.com/uploadFile", {
+
+
+            method:"POST",
+            body: data,
+            mode:'no-cors',
+            
+
+
+        })
+        .then(res => {
+            
+            
+            console.log("finished fetching" + res);
+          
+
+    
+        }
+        )
+        .catch(err =>{console.log(err);})
+        
+      
+
+
+
     }
 
     onDrop(newFiles){
