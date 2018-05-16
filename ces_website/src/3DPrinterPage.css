@@ -5,3 +5,6 @@
     padding-bottom: 2em;
     margin:auto;
 }
+.ColorPicker{
+    float: left;
+}
