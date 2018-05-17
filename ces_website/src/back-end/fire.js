@@ -9,7 +9,7 @@ var config = {
     messagingSenderId: "612020639792"
   };
 
-  fire = firebase.initializeApp(config);
+  const fire = firebase.initializeApp(config);
   export default fire;
 
   //Contemplated having node back-end and the node code will have ref of firebase

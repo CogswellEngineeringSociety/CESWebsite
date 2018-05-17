@@ -5,6 +5,7 @@
     padding-bottom: 2em;
     margin:auto;
 }
-.ColorPicker{
-    float: left;
+
+.InputSize{
+    width:30%;
 }

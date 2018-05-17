@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import fire from './back-end/fire';
 import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css'
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup } from 'reactstrap';
 
+//Will be in separate file later upon merging
 const url ="https://middleman2.herokuapp.com"
 
 class PrintingPage extends Component{
@@ -15,10 +16,17 @@ class PrintingPage extends Component{
              
             queue : [],
             colors : [],
+            colorChosen: "red",
             colorDropDown : false,
             fileUploaded : null,
-            dropZoneText : "Drag your Model Here or Click to Upload"
+            dropZoneText : "Drag your Model Here or Click to Upload",
+            modelSize:0,
+            modelSizeUnit:"mm",
+            modelDropDown:false,
+            defaultSizeSelection:true
+            
         }
+        this.sizeUnits = ["mm","inches"];
         this.uploadFile = this.uploadFile.bind(this);
         this.toggleColorDD = this.toggleColorDD.bind(this);
     }
@@ -114,6 +122,12 @@ class PrintingPage extends Component{
 
         const data = new FormData();
         data.append('file', this.state.fileUploaded);
+        data.append('size',{size:this.inputSize, unit:this.state.modelSizeUnit});
+        //Will check dropdown to get its valjue, but still now just this.
+        data.append('color', this.state.colorChosen);
+
+
+        
         //Will put in url of other server here
         const response = await fetch(url+"/uploadFile", {
 
@@ -121,19 +135,11 @@ class PrintingPage extends Component{
             method:"POST",
             body: data,
             mode:'no-cors',
-            
-
-
         })
         .then(res => {
             
-            
             console.log("finished fetching" + res);
-          
-
-    
-        }
-        )
+         })
         .catch(err =>{console.log(err);})
         
       
@@ -152,17 +158,58 @@ class PrintingPage extends Component{
 
     toggleColorDD(){
 
-        console.log("hello");
         this.setState({
             colorDropDown: !this.state.colorDropDown
         });
     }
+
+    alternateSizeSelection(){
+        this.setState({
+
+
+        })
+    }
+
+  
 
     render(){
 
         return (
            
             <div>
+
+            <Form>
+
+                <FormGroup className="DefaultSize" isOpen = {this.state.defaultSizeSelection}>
+                <ButtonGroup ref={this.sizeSelection} className = "SizeSelection"> 
+                    {/*Add images here later*/ }
+                    <Button> Small </Button>
+                    <Button> Medium </Button>
+                    <Button> Large </Button>
+                </ButtonGroup>
+                </FormGroup>
+                
+                
+                <FormGroup className="CustomSize" isOpen = {!this.state.defaultSizeSelection}>
+
+                   <Input ref={this.inputSize} className = "SizeSelection" placeholder="Input size"></Input> 
+
+                    {/*Test this later before doing toher way*/}
+                    <Dropdown className = "SizeUnit" isOpen = {this.state.modelDropDown} toggle={this.setState({
+                        
+                      modelDropDown : !this.state.modelDropDown  
+                        
+                    })}>
+
+                        {this.sizeUnits.map(value =>{
+
+                            <DropdownItem> {value} </DropdownItem>
+                        })}
+
+                    </Dropdown>
+
+                </FormGroup>
+                <Button> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
 
                 <Dropdown className="ColorPicker" isOpen={this.state.colorDropDown} toggle={this.toggleColorDD}>
 
@@ -182,6 +229,8 @@ class PrintingPage extends Component{
                     <p>{this.state.dropZoneText}</p>
                 </Dropzone>
                 <button onClick={this.uploadFile}> Upload </ button>
+
+                </Form>
             </div>
         )
 
