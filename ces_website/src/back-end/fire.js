@@ -10,6 +10,9 @@ var config = {
   };
 
   fire = firebase.initializeApp(config);
+
+  //Will add later when update domain, I know it works.
+  url = "bleh"
   export default fire;
 
   //Contemplated having node back-end and the node code will have ref of firebase
