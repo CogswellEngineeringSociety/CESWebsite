@@ -30,38 +30,17 @@ class Login extends Component{
         
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
+        //Will test this later.
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
                 console.log("logged in successfully " + res);
                // localStorage.setItem("loggedin",this.userName);
-
-
             })
 
             .catch(err => {console.log(err);})
 
-        /*
-        const response = await(fetch(url,{
-            method:"POST",
-            body:{
-
-                userName : this.userName,
-                password : this.password
-            }
-        }))
-
-    
-
-        .then(response => {
-
-           
-            localStorage.setItem("username",this.userName);
-            
-            
-        })
-        */
 
     }
 
@@ -95,21 +74,9 @@ class Login extends Component{
                 <Button onClick = {this.attemptLogin} > Login </Button>
 
             </Form>
-            
-            
-
 
             )
-            //Otherwise show the homepage or where came from before going here(that will be alot better)
-
-
     }
-
-
-
-
-
-
 }
 
 export default Login;

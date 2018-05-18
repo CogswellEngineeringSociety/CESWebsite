@@ -32,8 +32,32 @@ import "./Registration.css";
         if (this.validateForm()){
             //Then send post request to my other webapp to upload this user information, need to create that first.
 
+            this.registerAccount();
 
         }
+    }
+
+    registerAccount = async() =>{
+
+        const data = new FormData();
+        data.append("firstName",this.state.firstName);
+        data.append("lastName",this.state.lastName);
+        data.append("email",this.state.email);
+        data.append("password",this.state.password);
+        data.append("major",this.state.major);
+        const response = await fetch(url+"/register",{
+
+            method:"POST",
+            body:data,
+            mode:"no-cors"
+        })
+        .then(res => {
+
+
+        })
+        .catch(err => {console.log(err);}
+        );
+
     }
 
     validateForm(){
@@ -135,7 +159,9 @@ import "./Registration.css";
                     <Label for="passwordInput">Password</Label> <FormText className="FormPrompt"> (Password must contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
                     <Input name="password" type="password" id="passwordInput" value={this.state.password} onChange={this.fieldChanged}/>
                 </FormGroup>
+                
                 <FormGroup>
+
                 <Dropdown style={{paddingBottom:"3em"}}name="major" direction="right" isOpen={this.state.majorListOpen} toggle = {this.toggleMajorList}>
                     <DropdownToggle caret>
                         { (this.state.major !== "")? this.state.major : "Select Major"}
@@ -162,8 +188,11 @@ import "./Registration.css";
                             return <DropdownItem onClick={this.majorSelected}> {major} </DropdownItem>
                         })}
                     </DropdownMenu>
+                
                 </Dropdown>
+    
                 </FormGroup>
+    
                 <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
 
                 <Button onClick={this.onRegister}> Register </Button>
