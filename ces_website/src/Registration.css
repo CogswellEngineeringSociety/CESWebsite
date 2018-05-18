@@ -1,0 +1,10 @@
+.FormPrompt{
+    float:right;
+}
+
+Form{
+    width:50%;
+    margin:auto;
+}
+/*Some of these will be put into .css called form stuff and included in app.*/
+
