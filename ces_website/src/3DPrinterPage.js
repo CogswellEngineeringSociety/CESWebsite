@@ -119,7 +119,30 @@ class PrintingPage extends Component{
 }
 
     validateForm(){
- 
+        
+        var regex = /.obj|.X3G/;
+
+        if (this.state.fileUploaded == null){
+
+            this.setState({
+                error: "Please upload a model to print."
+            });
+
+        }
+        else if (!regex.test(this.state.fileUploaded.name.split(".")[1])){
+
+            this.setState({
+                error:"Invalid file type."
+            })
+        }
+
+        //Will update this to take multiple? Or just have them fill form out multiple times. Thats UX choice will dicuss alter.
+        else if (this.state.colorChosen == "Choose Color"){
+            this.setState({
+                error:"Please choose a color for your print"
+            })
+        }
+
     }
 
     uploadSecurely = async() => {
