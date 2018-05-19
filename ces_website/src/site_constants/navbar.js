@@ -17,7 +17,7 @@ class Navigationbar extends Component{
 
         //Feedback is basically contact us but there will be footer for contact
         //us too.
-        this.menuItems = [];
+        this.menuItems = ["3DPrinting"];
         this.state = {
 
           //  loggedIn:(localStorage.getItem("user") == "")? false : true
@@ -46,11 +46,10 @@ return(
                 </Navbar>
 
 
-        {/*exact means default*/}
    
 
-    {/*Doesn't get updated, would I need to use context instead?*/}
-    {/*These buttons will be hidden if logged in*/}
+    {/*May move these out since not tech not part of navigation?*/}
+   
     <div hidden = {this.props.userInfo != null}>
         <Button tag={Link} to="/Login"> Login </Button>
         <Button tag={Link} to="/Register"> Register </Button>

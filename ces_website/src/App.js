@@ -14,6 +14,7 @@ import {
   hashHistory
 
 } from 'react-router-dom';
+import PrintingPage from './3DPrinterPage';
 
 class App extends Component {
 
@@ -81,6 +82,11 @@ class App extends Component {
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
         </div>}
         }/>
+
+        <Route path="/3DPrinting" render={(props => {
+          return <PrintingPage userInfo={this.state.user}/>
+        })}/>
+
         </div>
         </Router>
 
