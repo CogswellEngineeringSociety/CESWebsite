@@ -17,7 +17,7 @@ class Navigationbar extends Component{
 
         //Feedback is basically contact us but there will be footer for contact
         //us too.
-        this.menuItems = ["3DPrinting"];
+        this.menuItems = ["3DPrinting","Calendar"];
         this.state = {
 
           //  loggedIn:(localStorage.getItem("user") == "")? false : true

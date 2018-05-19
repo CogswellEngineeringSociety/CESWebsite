@@ -44,20 +44,23 @@ class PrintingPage extends Component{
        
     }
     //In update so that while they're filling out form, this will auto update.
+    //It's actually every toher frame, not just when needs to update, fuck.
     componentWillUpdate(){
         this.updateQueue()
         .then(body =>  { this.setState({queue:body.queue})})
         .catch(err => {console.log("Still " + err)})
     }
+    
 
     //Read access on queue will also be public.
     //Writing will not be so that will be handled on private server.
     //Hmm but non-admin storage doesn't have getFilse method
     updateQueue = async() => {
 
+        //Right now just names, need to find way to get time into to it too maybe?
         const response =  await fetch(url+"/3DPrinterQueue",{
             method:"GET",
-            headers:{'content-type': 'application/json'}
+            headers:{'content-type': 'application/json'},
             
         })
         .catch(err =>{
@@ -211,6 +214,8 @@ class PrintingPage extends Component{
 
     updateSelectedItem(event){
 
+        
+
         const target = event.target;
 
         this.setState({
@@ -227,9 +232,11 @@ class PrintingPage extends Component{
            
             <div>
 
-                <ListGroup hidden = {this.state.queue.length == 0}>
+                <ListGroup> 
                     <ListGroupItemHeading> Models in Queue to Print </ListGroupItemHeading>
-                    {this.state.queue.map(model =>{
+                    {
+                        (this.state.queue.length == 0)? <ListGroupItem color="info"> None </ListGroupItem>: 
+                        this.state.queue.map(model =>{
                         const name = model.split("/")[1];
                        return  <ListGroupItem color="info"> {name} </ListGroupItem>
                     })}
@@ -273,7 +280,7 @@ class PrintingPage extends Component{
                         </Dropdown>
 
                     </FormGroup>
-                    <Button> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
+                    <Button onClick={this.alternateSizeSelection}> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
 
                     <Dropdown className="ColorPicker" isOpen={this.state.colorDropDown} toggle={this.toggleColorDD}>
 

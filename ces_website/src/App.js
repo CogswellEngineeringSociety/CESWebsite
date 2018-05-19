@@ -11,10 +11,12 @@ import {
   BrowserRouter as Router,
   Route,
   Link,
-  hashHistory
+  withRouter,
+  Redirect
 
 } from 'react-router-dom';
 import PrintingPage from './3DPrinterPage';
+import Calendar from './Calendar';
 
 class App extends Component {
 
@@ -35,6 +37,7 @@ class App extends Component {
   //Navbar is doing alot, I should rename it to header
   //Need to rework design of this to be better code-wise later
 
+
   changeLogin(user){
     
     this.setState({
@@ -47,7 +50,10 @@ class App extends Component {
       localStorage.setItem("user",JSON.stringify(user));
     }
     else{
+
       localStorage.removeItem("user");
+    //  console.log(this.props.match);
+     // this.props.history.push("/Login");
     }
   }
 
@@ -72,7 +78,7 @@ class App extends Component {
         <Route exact  path="/" component={NewsPage}/>
 
         <Route path="/Login"  render={(props) => {
-        return <div><Login changeLogin={this.changeLogin}/>
+        return <div><Login changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
         </div>}
         }/>
@@ -83,9 +89,17 @@ class App extends Component {
         </div>}
         }/>
 
+        <Route path="/Calendar" component={Calendar}/>
+
         <Route path="/3DPrinting" render={(props => {
-          return <PrintingPage userInfo={this.state.user}/>
+
+            if (this.state.user == null){
+              return <Redirect to={{pathname:"/Login",state:{prompt:"Order a 3D Print",back:"/3DPrinting"}}} {...props} />
+            }
+            else return <PrintingPage userInfo={this.state.user} {...props}/>
         })}/>
+
+        
 
         </div>
         </Router>
