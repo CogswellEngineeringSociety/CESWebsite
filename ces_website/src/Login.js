@@ -21,12 +21,25 @@ class Login extends Component{
     attemptLogin(event){
 
         event.preventDefault();
+        //So if they open it its still logged in
+        //console.log(localStorage.getItem("user"))
+        this.props.changeLogin({email:this.state.email,credits:200});
+
+        const history = this.props.history;
+
+        console.log();
+        if (this.props.location.state == null){
+           history.goBack();
+        }
+        else{
+            history.push(this.props.location.state.back);
+        }
+
     }
 
     
     validateLogin = async() =>{
 
-        //Wait sending password in, should be post request  since sensitive lol
         
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
@@ -61,7 +74,9 @@ class Login extends Component{
           //Will check cache
             //If not logged in, then show this form
             
+            
             <Form>
+                <FormText color="warning" hidden = {this.props.location.state == null}> Please login to {(this.props.location.state != null)? this.props.location.state.prompt:""} </FormText>
                 <FormGroup>
                     <Label for="emailInput">Email </Label> <FormText className="FormPrompt"> (Must be a cogswell student) </FormText>
                     <Input name="email" type="email" id="emailInput" value={this.state.email} onChange={this.fieldChanged}/>
