@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
-import User from './User';
 
 class Login extends Component{
 

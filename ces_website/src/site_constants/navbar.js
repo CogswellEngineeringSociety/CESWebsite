@@ -4,7 +4,6 @@ import {Navbar,Nav,NavLink,NavbarBrand,Button} from 'reactstrap';
 
 import {Link} from 'react-router-dom';
 import { app } from 'firebase';
-import User from '../User';
 
 //Rename this later cause it has nav bar and then some lol.
 //I could actually rework this a bit better, have the face of nav bar here
