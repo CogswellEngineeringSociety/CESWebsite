@@ -25,34 +25,36 @@ class Login extends Component{
         //console.log(localStorage.getItem("user"))
         this.props.changeLogin({email:this.state.email,credits:200});
 
-        const history = this.props.history;
-
-        console.log();
-        if (this.props.location.state == null){
-           history.goBack();
-        }
-        else{
-            history.push(this.props.location.state.back);
-        }
-
-    }
-
-    
-    validateLogin = async() =>{
-
-        
+        //Will have similiar logic in register?
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
-        //Will test this later.
+        //Will test this when have internet 
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
+                
                 console.log("logged in successfully " + res);
-               // localStorage.setItem("loggedin",this.userName);
+                this.props.changeLogin({email:res.email});
+
+                const history = this.props.history;
+                if (this.props.location.state == null){
+                    history.goBack();
+                }
+                else{
+                    history.push(this.props.location.state.back);
+                }
+
             })
 
-            .catch(err => {console.log(err);})
+            .catch(err => {
+                
+                this.setState({
+                    err:"Failed to login. Incorret email or password",
+                    email:"",
+                    password:""
+                });
+            })
 
 
     }
@@ -68,12 +70,8 @@ class Login extends Component{
 
 
     render(){
-        //Logging in is submitting
-        //Registering will link to different page.
+      
         return (
-          //Will check cache
-            //If not logged in, then show this form
-            
             
             <Form>
                 <FormText color="warning" hidden = {this.props.location.state == null}> Please login to {(this.props.location.state != null)? this.props.location.state.prompt:""} </FormText>

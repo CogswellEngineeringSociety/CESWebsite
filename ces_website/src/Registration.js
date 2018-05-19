@@ -22,6 +22,9 @@ import "./Registration.css";
 
         this.majorSelected = this.majorSelected.bind(this);
         this.toggleMajorList = this.toggleMajorList.bind(this);
+
+
+        //These options will be pulled from either file or database instead later. This is fine for now.
         this.majors=["Game Design Engineering","Computer Science","Digital Audio Engineering","Digital Arts Engineering","Digital Arts Animaton",
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
     }
@@ -31,9 +34,7 @@ import "./Registration.css";
         event.preventDefault();
         if (this.validateForm()){
             //Then send post request to my other webapp to upload this user information, need to create that first.
-
             this.registerAccount();
-
         }
     }
 
@@ -45,17 +46,28 @@ import "./Registration.css";
         data.append("email",this.state.email);
         data.append("password",this.state.password);
         data.append("major",this.state.major);
+
         const response = await fetch(url+"/register",{
 
             method:"POST",
             body:data,
-            mode:"no-cors"
+           // mode:"no-cors"
         })
         .then(res => {
-
+            console.log("registration complete");
+            //Then this will route to registration complte page, or just a check that renders here?
+            //Nah just different page is fine. Or should it go back to page before registration or login?
+            //I should ask them to confirm. Will look into that later.
+            this.state.history.push("/Login");
 
         })
-        .catch(err => {console.log(err);}
+        .catch(err => {
+            
+            console.log(err);
+            this.setState({
+                error:"A user with that email already exist. Try logging in instead?"
+            });
+        }
         );
 
     }
