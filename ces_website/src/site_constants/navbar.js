@@ -1,19 +1,15 @@
 import React, {Component} from 'react';
 import {Navbar,Nav,NavLink,NavbarBrand,Button} from 'reactstrap';
-import NewsPage from '../News';
-import Login from '../Login';
-import Registration from '../Registration';
 
-import {
-    BrowserRouter as Router,
-    Link,
-    Route
 
-} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import { app } from 'firebase';
+import User from '../User';
 
-
-//Do this later.
+//Rename this later cause it has nav bar and then some lol.
+//I could actually rework this a bit better, have the face of nav bar here
+//but then have all the actual routes in parent cause it just needs to be above it in heirarchy
+//that way instead of components being child of nav bar, which is wierd it will be children of main app.
 class Navigationbar extends Component{
 
     constructor(props){
@@ -22,55 +18,49 @@ class Navigationbar extends Component{
 
         //Feedback is basically contact us but there will be footer for contact
         //us too.
-        this.menuItems = [,"Login","Register"];
+        this.menuItems = [];
+        this.state = {
 
+          //  loggedIn:(localStorage.getItem("user") == "")? false : true
+          userInfo:null
+        };
     }
 
 
 
 
+
     render(){
+
+        //Router is in parent
 return(
-    <Router>
+
     <div>
+    <Navbar className="NavBar">
+        <Nav>
+        <NavLink tag = {Link} to="/"> News </NavLink>
+        {this.menuItems.map(menuItem => {
 
-<Navbar className="NavBar">
-    <Nav>
-    <NavLink tag = {Link} to="/"> News </NavLink>
-    {this.menuItems.map(menuItem => {
-
-        return <NavLink  className="NavBarButton" tag={Link} to={"/"+menuItem}> {menuItem} </NavLink>
-    })}
-    </Nav>
-            </Navbar>
+            return <NavLink  className="NavBarButton" tag={Link} to={"/"+menuItem}> {menuItem} </NavLink>
+        })}
+        </Nav>
+                </Navbar>
 
 
-    {/*exact means default*/}
+        {/*exact means default*/}
    
-    <Route exact  path="/" component={NewsPage}/>
 
+    {/*Doesn't get updated, would I need to use context instead?*/}
     {/*These buttons will be hidden if logged in*/}
-    <div>
+    <div hidden = {this.props.userInfo != null}>
         <Button tag={Link} to="/Login"> Login </Button>
         <Button tag={Link} to="/Register"> Register </Button>
     </div>
-        <Route path="/Login"  render={(props) => {
-        return <div><Login/>
-        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
-        </div>}
-        }/>
 
-        <Route path="/Register" render={(props) => {
-        return <div><Registration/>
-        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
-        </div>}
-        }/>
-
-
-
+    
+    
 
     </div>
-</Router>
         
 
 

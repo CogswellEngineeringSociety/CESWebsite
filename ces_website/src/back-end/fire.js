@@ -8,13 +8,14 @@ var config = {
     storageBucket: "ceswebsite-cf841.appspot.com",
     messagingSenderId: "612020639792"
   };
-
-  fire = firebase.initializeApp(config);
-
+ 
+  const fire = firebase.initializeApp(config);
+  
   //Will add later when update domain, I know it works.
-  url = "bleh"
+  export const url = "bleh"
   export default fire;
 
+ 
   //Contemplated having node back-end and the node code will have ref of firebase
   //and do everything but I'm cutting the middleman. Will add if need
   //for now will just have front-end use firebase api directly.

@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
-let url = "sdf";
-
+import User from './User';
 
 class Login extends Component{
+
     constructor(props){
         super(props);
         this.attemptLogin = this.attemptLogin.bind(this);
@@ -21,6 +21,9 @@ class Login extends Component{
     attemptLogin(event){
 
         event.preventDefault();
+        //So if they open it its still logged in
+        //console.log(localStorage.getItem("user"))
+        this.props.changeLogin({email:this.state.email});
     }
 
     
@@ -30,26 +33,35 @@ class Login extends Component{
         
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
+        //Just to test local storage first
+
         //Will test this later.
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
+                //this.props.changeLogin(true);
                 console.log("logged in successfully " + res);
-               // localStorage.setItem("loggedin",this.userName);
             })
 
-            .catch(err => {console.log(err);})
+            .catch(err => {
+                console.log(err);
+                this.props.changeLogin(null);
+            })
 
 
     }
 
     fieldChanged(event){
         const target = event.target;
+
+        //Is it because set state from another render??????
+        //wtf. It's not rendering
         this.setState({
             [target.name] : target.value,
             error:""
         });
+        
     }
    
 
