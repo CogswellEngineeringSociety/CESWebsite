@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import fire from './back-end/fire';
 import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css'
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert } from 'reactstrap';
 
 //Will be in separate file later upon merging
 const url ="https://middleman2.herokuapp.com"
@@ -16,30 +16,29 @@ class PrintingPage extends Component{
              
             queue : [],
             colors : [],
-            colorChosen: "red",
+            colorChosen: "Choose Color",
             colorDropDown : false,
             fileUploaded : null,
             dropZoneText : "Drag your Model Here or Click to Upload",
-            modelSize:0,
+            modelSize:"Small",
             modelSizeUnit:"mm",
             modelDropDown:false,
-            defaultSizeSelection:true
+            defaultSizeSelection:true,
+            error:""
             
         }
         this.sizeUnits = ["mm","inches"];
+        //Later on once get more information will say exact measurements
+        this.defaultSizes = ["Small","Medium","Large"];
         this.uploadFile = this.uploadFile.bind(this);
         this.toggleColorDD = this.toggleColorDD.bind(this);
+        this.alternateSizeSelection = this.alternateSizeSelection.bind(this);
     }
 
     componentWillMount(){
-        //Before this component is mounted on screen want to make sure colors
-        //there will be set interval to update the queue, will determine that time later
-        //colors avaialbe have to be refreshed, don't want that dynamic.
-        this.setState({
-            colors : ["red","blue"]
-        })
 
         this.pullAvailableColors();
+        //Also pull the queue, that will be serverside rendering. Need to look into that
     }
 
     pullAvailableColors(){
@@ -60,6 +59,7 @@ class PrintingPage extends Component{
                 })
             }})
 */
+            //Works
             fire.database().ref("PrinterState/Color").once('value')
                 .then(snapshot => {this.setState({
                     colors:snapshot.val().split(",")
@@ -72,11 +72,9 @@ class PrintingPage extends Component{
 
         console.log("hello");
 
-        if (this.state.fileUploaded == null) return;
 
-
-        const auth = fire.auth();
-        //This was good learning, and will require this sign in for client side.
+        //const auth = fire.auth();
+        //This was good learning,// and will require this sign in for client side.
         //but prio is sending get request
        /* auth.signInWithEmailAndPassword("bleh@gmail.com","bleh")
             .then(user => {if (user) {
@@ -110,24 +108,28 @@ class PrintingPage extends Component{
         
 
       */
-     this.uploadSecurely()
+     if (this.validateForm()){
+        this.uploadSecurely()
 
-            .then( res => {this.setState({
-                dropZoneText:"Drag your Model Here or Click to Upload"
-            })});
+                .then( res => {this.setState({
+                    dropZoneText:"Drag your Model Here or Click to Upload"
+                })});
         
+     }
+}
+
+    validateForm(){
+ 
     }
 
     uploadSecurely = async() => {
 
         const data = new FormData();
+
         data.append('file', this.state.fileUploaded);
-        data.append('size',{size:this.inputSize, unit:this.state.modelSizeUnit});
+        data.append('size',{size:this.state.modelSize, unit:this.state.modelSizeUnit});
         //Will check dropdown to get its valjue, but still now just this.
         data.append('color', this.state.colorChosen);
-
-
-        
         //Will put in url of other server here
         const response = await fetch(url+"/uploadFile", {
 
@@ -142,10 +144,6 @@ class PrintingPage extends Component{
          })
         .catch(err =>{console.log(err);})
         
-      
-
-
-
     }
 
     onDrop(newFiles){
@@ -161,82 +159,101 @@ class PrintingPage extends Component{
         this.setState({
             colorDropDown: !this.state.colorDropDown
         });
+      
     }
 
     alternateSizeSelection(){
         this.setState({
 
+            defaultSizeSelection : !this.state.defaultSizeSelection
+        })
+    }
 
+    updateSelectedItem(event){
+
+        const target = event.target;
+
+        this.setState({
+            
+            [target.name] : target.textContent
         })
     }
 
   
 
     render(){
-
+            
         return (
            
             <div>
+               {/*Impossible for user to be null on this page cause will redirect them to login if go to this path*/}
+                <p> Your Credits: { this.props.user.credits} </p>
+            
+                <Form>
 
-            <Form>
+                    <FormGroup className="DefaultSize" isOpen = {this.state.defaultSizeSelection}>
+                    <ButtonGroup className = "SizeSelection"> 
+                        {/*Add images here later*/ }
+                        {this.defaultSizes.map(val => {
 
-                <FormGroup className="DefaultSize" isOpen = {this.state.defaultSizeSelection}>
-                <ButtonGroup ref={this.sizeSelection} className = "SizeSelection"> 
-                    {/*Add images here later*/ }
-                    <Button> Small </Button>
-                    <Button> Medium </Button>
-                    <Button> Large </Button>
-                </ButtonGroup>
-                </FormGroup>
-                
-                
-                <FormGroup className="CustomSize" isOpen = {!this.state.defaultSizeSelection}>
-
-                   <Input ref={this.inputSize} className = "SizeSelection" placeholder="Input size"></Input> 
-
-                    {/*Test this later before doing toher way*/}
-                    <Dropdown className = "SizeUnit" isOpen = {this.state.modelDropDown} toggle={this.setState({
-                        
-                      modelDropDown : !this.state.modelDropDown  
-                        
-                    })}>
-
-                        {this.sizeUnits.map(value =>{
-
-                            <DropdownItem> {value} </DropdownItem>
+                            <Button name="size" onClick = {this.updateSelectedItem}> {val} </Button>
                         })}
+                    </ButtonGroup>
+                    </FormGroup>
+                    
+                    
+                    <FormGroup className="CustomSize" isOpen = {!this.state.defaultSizeSelection}>
 
+                    <Input name="size" onChange={(input)=>{this.setState({size:input.value});}} className = "SizeSelection" placeholder="Input size"></Input> 
+
+                        {/*Test this later before doing toher way*/}
+                        <Dropdown className = "SizeUnit" isOpen = {this.state.modelDropDown} toggle={this.setState({
+                            
+                        modelDropDown : !this.state.modelDropDown  
+                            
+                        })}>
+
+                            <DropdownToggle caret>
+                                {this.state.modelSizeUnit}
+                            </DropdownToggle>
+                            
+                            <DropdownMenu>
+                            {this.sizeUnits.map(value =>{
+
+                                <DropdownItem name="modelSizeUnit" onClick = {this.updateSelectedItem}> {value} </DropdownItem>
+                            })}
+                            </DropdownMenu>
+
+                        </Dropdown>
+
+                    </FormGroup>
+                    <Button> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
+
+                    <Dropdown className="ColorPicker" isOpen={this.state.colorDropDown} toggle={this.toggleColorDD}>
+
+                            <DropdownToggle caret>
+                                {this.state.colorChosen}
+                            </DropdownToggle>
+
+                            <DropdownMenu>
+
+                                {this.state.colors.map(color => {
+                                    return <DropdownItem name="colorChosen" onClick={this.updateSelectedItem}> {color} </DropdownItem>
+                                })} 
+
+                            </DropdownMenu>
                     </Dropdown>
+                    <Dropzone className="DropZone" onDrop={this.onDrop.bind(this)}>
+                        <p>{this.state.dropZoneText}</p>
+                    </Dropzone>
 
-                </FormGroup>
-                <Button> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
-
-                <Dropdown className="ColorPicker" isOpen={this.state.colorDropDown} toggle={this.toggleColorDD}>
-
-                        <DropdownToggle caret>
-                            Color
-                        </DropdownToggle>
-
-                        <DropdownMenu>
-
-                            {this.state.colors.map(color => {
-                                return <DropdownItem> {color} </DropdownItem>
-                            })} 
-
-                        </DropdownMenu>
-                </Dropdown>
-                <Dropzone className="DropZone" onDrop={this.onDrop.bind(this)}>
-                    <p>{this.state.dropZoneText}</p>
-                </Dropzone>
-                <button onClick={this.uploadFile}> Upload </ button>
+                    <Button onClick={this.uploadFile}> Upload </Button>
+                    <Alert color="danger" isOpen = {this.state.error != ""}> {this.state.error} </Alert>
 
                 </Form>
             </div>
         )
-
     }
-
-
 
 }
 
