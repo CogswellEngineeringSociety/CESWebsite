@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import fire from './back-end/fire';
 import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css'
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading } from 'reactstrap';
 
 //Will be in separate file later upon merging
 const url ="https://middleman2.herokuapp.com"
@@ -14,6 +14,7 @@ class PrintingPage extends Component{
         
         this.state = {
              
+            //Should I show the list of everything in queue? Is that neccessarry?
             queue : [],
             colors : [],
             colorChosen: "Choose Color",
@@ -38,40 +39,42 @@ class PrintingPage extends Component{
     componentWillMount(){
 
         this.pullAvailableColors();
-        //Also pull the queue, that will be serverside rendering. Need to look into that
+
+        this.updateQueue();
+        //Also pull the queue, that will be serverside rendering, cause don't want it to be on a ticker, but for now this is fine.
+    }
+
+    //Read access on queue will also be public.
+    //Writing will not be so that will be handled on private server.
+    //Hmm but non-admin storage doesn't have getFilse method
+    updateQueue = async() => {
+
+      //  const queueRef = fire.storage().ref().child("3DPrinterQueue");
+        //hmmmmmmmmmm, need to iterate through each child, there isn't a way I can do that using non-admin
+        //queueRef.child().storage.
+
+        fetch(url+"/3DPrinterQueue")
+        .then(response => {
+            const body = response.json();
+            this.setState({
+                queue:body.queue
+            });
+        })
+        .catch(err =>{
+            console.log("Error");
+        })
     }
 
     pullAvailableColors(){
-
-        //Honestly this one doesn't need to be secure and can just be done directly
-        //Need to rewwork rules first, but yeah, read for colors should be public
-        //write is something admin only though.
-        /*
-        const response = await fetch(url+"/availablecolors",{
-            method:"GET",
-            mode:'no-cors',
-        })
-            .then(res => {if (res){
-
-                this.setState({
-                    //Initializes states colors to colors pulled from database
-                    colors : res.json().colors
-                })
-            }})
-*/
-            //Works
             fire.database().ref("PrinterState/Color").once('value')
-                .then(snapshot => {this.setState({
-                    colors:snapshot.val().split(",")
-                })})
+            .then(snapshot => {this.setState({
+                colors:snapshot.val().split(",")
+            })})
     }
 
     uploadFile(event){
 
         event.preventDefault();
-
-        console.log("hello");
-
 
         //const auth = fire.auth();
         //This was good learning,// and will require this sign in for client side.
@@ -119,7 +122,7 @@ class PrintingPage extends Component{
 }
 
     validateForm(){
-        
+
         var regex = /.obj|.X3G/;
 
         if (this.state.fileUploaded == null){
@@ -209,8 +212,18 @@ class PrintingPage extends Component{
         return (
            
             <div>
+
+                <ListGroup>
+                    <ListGroupItemHeading> Models in Queue to Print </ListGroupItemHeading>
+                    {this.state.queue.map(model =>{
+
+                        <ListGroupItem> {model} </ListGroupItem>
+                    })}
+
+                </ListGroup>
                {/*Impossible for user to be null on this page cause will redirect them to login if go to this path*/}
                 <p> Your Credits: { this.props.user.credits} </p>
+                
             
                 <Form>
 
