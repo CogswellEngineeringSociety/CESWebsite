@@ -22,31 +22,21 @@ class Login extends Component{
         event.preventDefault();
         //So if they open it its still logged in
         //console.log(localStorage.getItem("user"))
-<<<<<<< HEAD
-        this.props.changeLogin({email:this.state.email,credits:200});
-=======
-        this.props.changeLogin({email:this.state.email});
+        this.validateLogin();
     }
 
     
     validateLogin = async() =>{
->>>>>>> develop
 
         //Will have similiar logic in register?
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
-<<<<<<< HEAD
-        //Will test this when have internet 
-=======
         //Just to test local storage first
 
         //Will test this later.
->>>>>>> develop
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
-                
-<<<<<<< HEAD
                 
                 console.log("logged in successfully " + res);
                 this.props.changeLogin({email:res.email});
@@ -68,15 +58,6 @@ class Login extends Component{
                     email:"",
                     password:""
                 });
-=======
-                //this.props.changeLogin(true);
-                console.log("logged in successfully " + res);
-            })
-
-            .catch(err => {
-                console.log(err);
-                this.props.changeLogin(null);
->>>>>>> develop
             })
 
 
