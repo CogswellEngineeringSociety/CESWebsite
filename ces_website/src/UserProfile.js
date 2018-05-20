@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import fire,{url} from './back-end/fire';
+import {ListGroup, ListGroupItem, ListGroupItemHeading, Button, Popover,PopoverBody,PopoverHeader} from 'reactstrap';
+
 
 export default class UserProfile extends Component{
 
@@ -9,6 +11,9 @@ export default class UserProfile extends Component{
         this.state = {
 
             orderedPrints: [],
+            infoOpen:false,
+            //For actual content
+            infoContent:null,
             error:""
         }
     }
@@ -22,11 +27,50 @@ export default class UserProfile extends Component{
 
             console.log(snapshot);
             pulledPrints.push(snapshot);  
+            this.setState({
+                orderedPrints : pulledPrints
+            });
+
+            /* Could make dictionary for it instead but since not part of state or props it won't render on updating it.
+            So keeping here incase change mind but alternative for now is just one popover where content of it is changed.
+            pulledPrints.forEach(order => {
+                //Adding states to state for whether or not displaying info.
+                this.setState({
+                    [order.fileName + "_info"] : false  
+                });
+            })*/
         })
 
     }
 
+    toggleInfo(event){
 
+        const nameOfFile = event.target.name.split("_")[0];
+
+        const toDisplay = this.state.orderedPrints.find((element) => {
+            return element.fileName === nameOfFile;
+        });
+
+        //If was info was clicked and was on same item as before, then this means close the info box
+        if (this.state.infoContent != null && this.state.infoContent.name == nameOfFile){
+            
+            this.setState({
+                infoOpen: false,
+                infoContent:null
+
+            });
+        }
+        else{
+
+            this.setState({
+                infoOpen : true,
+                //Assuming the objects pulled from database keep that kind of structure, I'll have to test that later.
+                //infoContent: toDisplay
+                //For testing of disaply
+                infoContent:{name:nameOfFile, start:"2 weeks", end:"2weeks", duration:"60 mins", cost:"10 credits / $1"}
+            });
+        }
+    }
 
     refund(event){
         //If the thing they clicked on to refund is still in queue
@@ -74,7 +118,7 @@ export default class UserProfile extends Component{
             body:{
                 fileName:toRemove
             }
-        }
+        })
         //Could add then to only update their list here, but if looking at on phone and on somewhere else, should auto update
         //Also if put in printer, will be auto removed, so it needs to be updated every frame regardless.
         .catch(err => {
@@ -83,25 +127,48 @@ export default class UserProfile extends Component{
             
             throw new Error("Failed to remove item. Please try again.");
 
-        })
-
+        });
     }
-
-
-
-    
-
-
-
 
     render(){
 
         return (
             //Will show all user information and models they ordered to print
+            <div>
+                <ListGroup>
+                    <ListGroupItemHeading>
+                        Your ordered prints.
 
+                    </ListGroupItemHeading>
+                    {
+                         (this.state.orderedPrints.length == 0)? <ListGroupItem> None </ListGroupItem> :
 
+                            this.state.orderedPrints.map((order) => {
 
+                            //Buttons will be floated to right of name.
+                            return <ListGroupItem> {order} 
 
+                            <Button name={order+"_info"}  onClick = {this.toggleInfo}> Info </Button>
+                            <Button name={order+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
+                        </ListGroupItem>
+
+                       })
+                    }
+
+                </ListGroup>
+               
+                    {/*Name in info content will correspond to last info button clicked so that the popover shows up in the
+                    correct spot*/}
+                <Popover placement="bottom" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": ""}>
+                        <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
+                        <PopoverBody>
+                            Estimated Start Time: {this.state.infoContent.start} <br></br>
+                            Duration: {this.state.infoContent.duration}} <br> </br>
+                            Estimated End Time: {this.state.infoContent.end} <br> </br>
+                            Cost: {this.state.infoContent.cost} 
+                        </PopoverBody>
+                </Popover>
+            </div>
 
         )
 
