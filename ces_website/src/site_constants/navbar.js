@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
-import {Navbar,NavItem,NavbarBrand} from 'reactstrap';
-import {
-    BrowserRouter as Router,
-    Link,
-    Route
-
-} from 'react-router-dom';
+import {Navbar,Nav,NavLink,NavbarBrand,Button} from 'reactstrap';
 
 
-//Do this later.
-class Navbar extends Component{
+import {Link} from 'react-router-dom';
+import { app } from 'firebase';
+
+//Rename this later cause it has nav bar and then some lol.
+//I could actually rework this a bit better, have the face of nav bar here
+//but then have all the actual routes in parent cause it just needs to be above it in heirarchy
+//that way instead of components being child of nav bar, which is wierd it will be children of main app.
+class Navigationbar extends Component{
 
     constructor(props){
         super(props);
@@ -17,37 +17,55 @@ class Navbar extends Component{
 
         //Feedback is basically contact us but there will be footer for contact
         //us too.
-        this.menuItems = ["News","Calendar","3DPrinter","Feedback"];
+        this.menuItems = ["3DPrinting","Calendar"];
+        this.state = {
 
+          //  loggedIn:(localStorage.getItem("user") == "")? false : true
+          userInfo:null
+        };
     }
+
 
 
 
 
     render(){
 
-        <Navbar className="NavBar">
-        <Router>
+        //Router is in parent
+return(
 
-            {this.menuItems.map(menuItem => {
+    <div>
+    <Navbar className="NavBar">
+        <Nav>
+        <NavLink tag = {Link} to="/"> News </NavLink>
+        {this.menuItems.map(menuItem => {
 
-                <NavItem> <Link to={"/"+menuItem}> {menuItem} </Link> </NavItem>
-            })}
+            return <NavLink  className="NavBarButton" tag={Link} to={"/"+menuItem}> {menuItem} </NavLink>
+        })}
+        </Nav>
+                </Navbar>
 
-            {/*exact means default*/}
-            <Route exact path={"/"} component={App}/>
-            <Route path="/News" component = {News}/>
-            <Route path="/Calendar" component = {Calendar}/>
-            <Route path="/Feedback" component ={Feedback}/>
 
-        </Router>
-        </Navbar>
+   
+
+    {/*May move these out since not tech not part of navigation?*/}
+   
+    <div hidden = {this.props.userInfo != null}>
+        <Button tag={Link} to="/Login"> Login </Button>
+        <Button tag={Link} to="/Register"> Register </Button>
+    </div>
+
+    
+    
+
+    </div>
         
 
 
-    }
+    );
+}
 
 
 }
 
-export default Component
+export default Navigationbar;

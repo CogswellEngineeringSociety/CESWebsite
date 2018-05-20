@@ -1,10 +1,9 @@
 import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
-let url = "sdf";
-
 
 class Login extends Component{
+
     constructor(props){
         super(props);
         this.attemptLogin = this.attemptLogin.bind(this);
@@ -23,16 +22,31 @@ class Login extends Component{
         event.preventDefault();
         //So if they open it its still logged in
         //console.log(localStorage.getItem("user"))
+<<<<<<< HEAD
         this.props.changeLogin({email:this.state.email,credits:200});
+=======
+        this.props.changeLogin({email:this.state.email});
+    }
+
+    
+    validateLogin = async() =>{
+>>>>>>> develop
 
         //Will have similiar logic in register?
         //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
+<<<<<<< HEAD
         //Will test this when have internet 
+=======
+        //Just to test local storage first
+
+        //Will test this later.
+>>>>>>> develop
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
+<<<<<<< HEAD
                 
                 console.log("logged in successfully " + res);
                 this.props.changeLogin({email:res.email});
@@ -54,6 +68,15 @@ class Login extends Component{
                     email:"",
                     password:""
                 });
+=======
+                //this.props.changeLogin(true);
+                console.log("logged in successfully " + res);
+            })
+
+            .catch(err => {
+                console.log(err);
+                this.props.changeLogin(null);
+>>>>>>> develop
             })
 
 
@@ -61,10 +84,14 @@ class Login extends Component{
 
     fieldChanged(event){
         const target = event.target;
+
+        //Is it because set state from another render??????
+        //wtf. It's not rendering
         this.setState({
             [target.name] : target.value,
             error:""
         });
+        
     }
    
 
