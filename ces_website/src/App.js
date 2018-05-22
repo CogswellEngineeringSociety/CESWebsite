@@ -6,6 +6,7 @@ import Login from './Login';
 import Registration from './Registration';
 import NewsPage from './News';
 import {Button} from 'reactstrap';
+import UserProfile from './UserProfile'
 
 import {
   BrowserRouter as Router,
@@ -74,20 +75,33 @@ class App extends Component {
 
           }> Logout </Button>
 
+          <Button tag={Link} to="/UserProfile">Profile
+          </Button>
+
+          }
+
         </span>
         <Route exact  path="/" component={NewsPage}/>
 
         <Route path="/Login"  render={(props) => {
-        return <div><Login changeLogin={this.changeLogin} {...props}/>
+        if (this.state.user != null) {return <div><Login changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
         </div>}
-        }/>
+        else {
+          return  <Redirect to="/"/>
+        }
+        }}/>
 
         <Route path="/Register" render={(props) => {
-        return <div><Registration changeLogin={this.changeLogin}/>
+         if (this.state.user == null) {return <div><Registration changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
         </div>}
-        }/>
+        else{
+          //A little slight delay on the redirect, unfortunately but wroks lol.
+          return <Redirect to={"/"} />
+        }
+
+      }}/>
 
         <Route path="/Calendar" component={Calendar}/>
 
@@ -98,6 +112,13 @@ class App extends Component {
             }
             else return <PrintingPage userInfo={this.state.user} {...props}/>
         })}/>
+
+        <Route path="/UserProfile" render = {(props)=>{
+          if (this.state.user != null)
+            return <UserProfile userInfo={this.state.user}/>
+          else
+            return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
+        }}/>
 
         
 
