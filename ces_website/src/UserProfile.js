@@ -16,29 +16,34 @@ export default class UserProfile extends Component{
             infoContent:null,
             error:""
         }
+
+        this.toggleInfo = this.toggleInfo.bind(this);
+        this.refund = this.refund.bind(this);
     }
 
-    componentWillUpdate(){
+    componentWillMount(){
+    
 
-        const databaseRef = fire.datebase.ref("QueuedModels");
+        const databaseRef = fire.database().ref("QueuedModels/"+this.props.userInfo.uid);
+        console.log(databaseRef);
           //Need to test this when have internet
         const pulledPrints = []
-          databaseRef.orderByChild("email").equalTo(this.props.userInfo.email).on("child_added",(snapshot)=>{
 
-            pulledPrints.push(snapshot);  
-            this.setState({
-                orderedPrints : pulledPrints
-            });
-
-            /* Could make dictionary for it instead but since not part of state or props it won't render on updating it.
-            So keeping here incase change mind but alternative for now is just one popover where content of it is changed.
-            pulledPrints.forEach(order => {
-                //Adding states to state for whether or not displaying info.
-                this.setState({
-                    [order.fileName + "_info"] : false  
-                });
-            })*/
+        databaseRef.on('value',snapshot =>{
+           
+            const orders = snapshot.val();
+            console.log(orders);
+            Object.keys(orders).forEach((key) => {
+               var newObj = orders[key];
+               newObj['name'] = key;
+               pulledPrints.push(newObj);
+            })
+            
+        });
+        this.setState({
+            orderedPrints : pulledPrints
         })
+        
 
     }
 
@@ -63,10 +68,7 @@ export default class UserProfile extends Component{
 
             this.setState({
                 infoOpen : true,
-                //Assuming the objects pulled from database keep that kind of structure, I'll have to test that later.
-                //infoContent: toDisplay
-                //For testing of disaply
-                infoContent:{name:nameOfFile, start:"2 weeks", end:"2weeks", duration:"60 mins", cost:"10 credits / $1"}
+                infoContent:this.state.orderedPrints.find((modelInfo) => { if (modelInfo.name == nameOfFile) return true;})
             });
         }
     }
@@ -80,7 +82,7 @@ export default class UserProfile extends Component{
         
         /* Removing from Database*/
         //Removing client side like this will depend on authorization they've provided.
-        const databaseRef = fire.datebase.ref("QueuedModels/"+toRemove);
+        const databaseRef = fire.datebase.ref("QueuedModels/"+this.props.userInfo.email+"/"+toRemove);
         databaseRef.remove()
         .then(res => {
 
@@ -115,6 +117,7 @@ export default class UserProfile extends Component{
 
             method:"POST",
             body:{
+                userEmail:this.userInfo.email,
                 fileName:toRemove
             }
         })
@@ -128,6 +131,7 @@ export default class UserProfile extends Component{
 
         });
     }
+
 
     render(){
 
@@ -145,10 +149,10 @@ export default class UserProfile extends Component{
                             this.state.orderedPrints.map((order) => {
 
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem> {order} 
+                            return <ListGroupItem> {order.name} 
 
-                            <Button name={order+"_info"}  onClick = {this.toggleInfo}> Info </Button>
-                            <Button name={order+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
+                            <Button name={order.name+"_info"} id={order.name+"_info"} onClick = {this.toggleInfo}> Info </Button>
+                            <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
                         </ListGroupItem>
 
                        })
@@ -158,13 +162,13 @@ export default class UserProfile extends Component{
                
                     {/*Name in info content will correspond to last info button clicked so that the popover shows up in the
                     correct spot*/}
-                <Popover placement="bottom" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": ""}>
+                <Popover placement="right" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
                         <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
                         <PopoverBody>
-                            Estimated Start Time: {this.state.infoContent.start} <br></br>
-                            Duration: {this.state.infoContent.duration}} <br> </br>
-                            Estimated End Time: {this.state.infoContent.end} <br> </br>
-                            Cost: {this.state.infoContent.cost} 
+                            Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} 
+                            Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} 
+                            Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} 
+                            Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} 
                         </PopoverBody>
                 </Popover>
             </div>

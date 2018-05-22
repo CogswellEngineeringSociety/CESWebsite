@@ -37,7 +37,9 @@ class Login extends Component{
                
                 //Gets profile informaiton of user.
                 userInfoRef.once('value').then(snapshot=>{
-                    this.props.changeLogin(snapshot.val());                   
+                    var userInfo = snapshot.val();
+                    userInfo["uid"] = user.uid;
+                    this.props.changeLogin(userInfo);                   
                 })
             
                 const history = this.props.history;
