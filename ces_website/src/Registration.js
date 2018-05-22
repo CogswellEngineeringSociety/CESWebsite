@@ -56,12 +56,16 @@ import "./Registration.css";
         })
         .catch(err => {
           
+            this.setState({
+                error:"An error as occured. Please contact the help desk if it continues"
+            });
+            return;
         }
         );
 
         const body = await response.json();
 
-        if (body.error != null){
+        if (body != null && body.error != null){
             this.setState({
                 error:body.error
             });
