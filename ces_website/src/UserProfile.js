@@ -25,7 +25,6 @@ export default class UserProfile extends Component{
         const pulledPrints = []
           databaseRef.orderByChild("email").equalTo(this.props.userInfo.email).on("child_added",(snapshot)=>{
 
-            console.log(snapshot);
             pulledPrints.push(snapshot);  
             this.setState({
                 orderedPrints : pulledPrints
@@ -171,9 +170,5 @@ export default class UserProfile extends Component{
             </div>
 
         )
-
-
     }
-
-
 }

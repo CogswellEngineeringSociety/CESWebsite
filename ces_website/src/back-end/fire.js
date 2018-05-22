@@ -12,7 +12,7 @@ var config = {
   const fire = firebase.initializeApp(config);
   
   //Will add later when update domain, I know it works.
-  export const url = "bleh"
+  export const url = "https://middleman2.herokuapp.com"
   export default fire;
 
  

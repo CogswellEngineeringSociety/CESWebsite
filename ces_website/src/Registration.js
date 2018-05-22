@@ -41,6 +41,7 @@ import "./Registration.css";
 
     registerAccount = async() =>{
 
+        console.log("attempting to register");
         const data = new FormData();
         data.append("firstName",this.state.firstName);
         data.append("lastName",this.state.lastName);
@@ -48,28 +49,23 @@ import "./Registration.css";
         data.append("password",this.state.password);
         data.append("major",this.state.major);
 
-        const response = await fetch(url+"/register",{
+        const response = await fetch("http://localhost:5000/register",{
 
             method:"POST",
             body:data,
-           // mode:"no-cors"
-        })
-        .then(res => {
-            console.log("registration complete");
-            //Then this will route to registration complte page, or just a check that renders here?
-            //Nah just different page is fine. Or should it go back to page before registration or login?
-            //I should ask them to confirm. Will look into that later.
-            this.state.history.push("/Login");
-
         })
         .catch(err => {
-            
-            console.log(err);
-            this.setState({
-                error:"A user with that email already exist. Try logging in instead?"
-            });
+          
         }
         );
+
+        const body = await response.json();
+
+        if (body.error != null){
+            this.setState({
+                error:body.error
+            });
+        }
 
     }
 
@@ -90,7 +86,7 @@ import "./Registration.css";
             this.setState({
                 error:"Invalid Email."
             });
-            return;
+            return false;
         }
 
         //Validating password
@@ -109,7 +105,7 @@ import "./Registration.css";
             this.setState({
                 error:"Invalid Password"
             });
-            return;
+            return false
         }
 
 
@@ -121,11 +117,11 @@ import "./Registration.css";
             this.setState({
                 error:"Please Select your Major"
             });
-            return;
+            return false;
         }
         //Password should also require stuff, but fuck it for now don't care enough, up to them for that
 
-        
+        return valid;
     }
 
    
@@ -136,7 +132,6 @@ import "./Registration.css";
             error:""
         });
 
-        console.log(target);
     }
 
     majorSelected(event){
@@ -169,7 +164,7 @@ import "./Registration.css";
                 </FormGroup>
                 
                 <FormGroup>
-                    <Label for="passwordInput">Password</Label> <FormText className="FormPrompt"> (Password must contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
+                    <Label for="passwordInput">Password</Label> <FormText className="FormPrompt"> (Password must at a minimum of 6 characters and contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
                     <Input name="password" type="password" id="passwordInput" value={this.state.password} onChange={this.fieldChanged}/>
                 </FormGroup>
                 
