@@ -20,32 +20,35 @@ class Login extends Component{
     attemptLogin(event){
 
         event.preventDefault();
-        //So if they open it its still logged in
-        //console.log(localStorage.getItem("user"))
         this.validateLogin();
     }
-
     
     validateLogin = async() =>{
 
-        //Will have similiar logic in register?
-        //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
-        //Just to test local storage first
 
-        //Will test this later.
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
-                console.log("logged in successfully " + res);
-                this.props.changeLogin({email:res.email});
+                const user = auth.currentUser;
 
+                const userInfoRef  = fire.database().ref("Users/"+user.uid);
+               
+                //Gets profile informaiton of user.
+                userInfoRef.once('value').then(snapshot=>{
+                    this.props.changeLogin(snapshot.val());                   
+                })
+            
                 const history = this.props.history;
                 if (this.props.location.state == null){
+
+                    //Using redirect to avoid going back to register, but it does show it for a split second
+                    //I probably should find way to check it here and avoid going there at all.
                     history.goBack();
                 }
                 else{
+                    //This is when was forced to login when tried to go to a login required page.
                     history.push(this.props.location.state.back);
                 }
 
@@ -53,13 +56,14 @@ class Login extends Component{
 
             .catch(err => {
                 
+                console.log(err);
                 this.setState({
-                    err:"Failed to login. Incorret email or password",
+                    error:"Failed to login. Incorret email or password",
                     email:"",
                     password:""
                 });
-            })
-
+            }
+            )
 
     }
 
@@ -74,8 +78,6 @@ class Login extends Component{
         });
         
     }
-   
-
 
     render(){
       
