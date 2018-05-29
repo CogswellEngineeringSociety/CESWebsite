@@ -23,6 +23,9 @@ import "./Registration.css";
 
         this.majorSelected = this.majorSelected.bind(this);
         this.toggleMajorList = this.toggleMajorList.bind(this);
+
+
+        //These options will be pulled from either file or database instead later. This is fine for now.
         this.majors=["Game Design Engineering","Computer Science","Digital Audio Engineering","Digital Arts Engineering","Digital Arts Animaton",
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
     }
@@ -32,32 +35,41 @@ import "./Registration.css";
         event.preventDefault();
         if (this.validateForm()){
             //Then send post request to my other webapp to upload this user information, need to create that first.
-
             this.registerAccount();
-
         }
     }
 
     registerAccount = async() =>{
 
+        console.log("attempting to register");
         const data = new FormData();
         data.append("firstName",this.state.firstName);
         data.append("lastName",this.state.lastName);
         data.append("email",this.state.email);
         data.append("password",this.state.password);
         data.append("major",this.state.major);
-        const response = await fetch(url+"/register",{
+
+        const response = await fetch("http://localhost:5000/register",{
 
             method:"POST",
             body:data,
-            mode:"no-cors"
         })
-        .then(res => {
-
-
-        })
-        .catch(err => {console.log(err);}
+        .catch(err => {
+          
+            this.setState({
+                error:"An error as occured. Please contact the help desk if it continues"
+            });
+            return;
+        }
         );
+
+        const body = await response.json();
+
+        if (body != null && body.error != null){
+            this.setState({
+                error:body.error
+            });
+        }
 
     }
 
@@ -78,7 +90,7 @@ import "./Registration.css";
             this.setState({
                 error:"Invalid Email."
             });
-            return;
+            return false;
         }
 
         //Validating password
@@ -97,7 +109,7 @@ import "./Registration.css";
             this.setState({
                 error:"Invalid Password"
             });
-            return;
+            return false
         }
 
 
@@ -109,11 +121,11 @@ import "./Registration.css";
             this.setState({
                 error:"Please Select your Major"
             });
-            return;
+            return false;
         }
         //Password should also require stuff, but fuck it for now don't care enough, up to them for that
 
-        
+        return valid;
     }
 
    
@@ -124,7 +136,6 @@ import "./Registration.css";
             error:""
         });
 
-        console.log(target);
     }
 
     majorSelected(event){
@@ -157,7 +168,7 @@ import "./Registration.css";
                 </FormGroup>
                 
                 <FormGroup>
-                    <Label for="passwordInput">Password</Label> <FormText className="FormPrompt"> (Password must contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
+                    <Label for="passwordInput">Password</Label> <FormText className="FormPrompt"> (Password must at a minimum of 6 characters and contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
                     <Input name="password" type="password" id="passwordInput" value={this.state.password} onChange={this.fieldChanged}/>
                 </FormGroup>
                 

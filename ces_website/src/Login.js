@@ -20,34 +20,52 @@ class Login extends Component{
     attemptLogin(event){
 
         event.preventDefault();
-        //So if they open it its still logged in
-        //console.log(localStorage.getItem("user"))
-        this.props.changeLogin({email:this.state.email});
+        this.validateLogin();
     }
-
     
     validateLogin = async() =>{
 
-        //Wait sending password in, should be post request  since sensitive lol
-        
-        //Logging not need admin access they authorizing themselves in this session lol.
         const auth = fire.auth();
-        //Just to test local storage first
 
-        //Will test this later.
         auth.signInWithEmailAndPassword(this.state.email,this.state.password)
 
             .then(res => {
                 
-                //this.props.changeLogin(true);
-                console.log("logged in successfully " + res);
+                const user = auth.currentUser;
+
+                const userInfoRef  = fire.database().ref("Users/"+user.uid);
+               
+                //Gets profile informaiton of user.
+                userInfoRef.once('value').then(snapshot=>{
+                    var userInfo = snapshot.val();
+                    userInfo["uid"] = user.uid;
+                    this.props.changeLogin(userInfo);                   
+                })
+            
+                const history = this.props.history;
+                if (this.props.location.state == null){
+
+                    //Using redirect to avoid going back to register, but it does show it for a split second
+                    //I probably should find way to check it here and avoid going there at all.
+                    history.goBack();
+                }
+                else{
+                    //This is when was forced to login when tried to go to a login required page.
+                    history.push(this.props.location.state.back);
+                }
+
             })
 
             .catch(err => {
+                
                 console.log(err);
-                this.props.changeLogin(null);
-            })
-
+                this.setState({
+                    error:"Failed to login. Incorret email or password",
+                    email:"",
+                    password:""
+                });
+            }
+            )
 
     }
 
@@ -62,17 +80,13 @@ class Login extends Component{
         });
         
     }
-   
-
 
     render(){
-        //Logging in is submitting
-        //Registering will link to different page.
+      
         return (
-          //Will check cache
-            //If not logged in, then show this form
             
             <Form>
+                <FormText color="warning" hidden = {this.props.location.state == null}> Please login to {(this.props.location.state != null)? this.props.location.state.prompt:""} </FormText>
                 <FormGroup>
                     <Label for="emailInput">Email </Label> <FormText className="FormPrompt"> (Must be a cogswell student) </FormText>
                     <Input name="email" type="email" id="emailInput" value={this.state.email} onChange={this.fieldChanged}/>
