@@ -24,7 +24,8 @@ class PrintingPage extends Component{
             modelSizeUnit:"mm",
             modelDropDown:false,
             defaultSizeSelection:true,
-            error:""
+            error:"",
+            success:""
             
         }
         this.sizeUnits = ["mm","inches"];
@@ -87,50 +88,16 @@ class PrintingPage extends Component{
 
         event.preventDefault();
 
-        //const auth = fire.auth();
-        //This was good learning,// and will require this sign in for client side.
-        //but prio is sending get request
-       /* auth.signInWithEmailAndPassword("bleh@gmail.com","bleh")
-            .then(user => {if (user) {
+       
+        if (this.validateForm()){
+            this.uploadSecurely();
 
-                const storage = fire.storage().ref("3DPrinterQueue/"+this.state.fileUploaded.name);
-                var task = storage.put(this.state.fileUploaded);
-
-
-                task.on("state_changed",
-    
-                //Main thing though is no progress on front-end
-                //to show user.
-
-                function progress(snapshot){
-                    var percentage = snapshot.bytesTransferrd / snapshot.totalBytes;
-                    percentage *= 100;
-    
-                },
-    
-                function error(err){
-                    console.log(err);
-                },
-                function complete(){
-                    console.log("Finished uploading");
-                   
-                }
-        
-        
-        )
-            }})
-        
-
-      */
-     if (this.validateForm()){
-        this.uploadSecurely()
-
-                .then( res => {this.setState({
-                    dropZoneText:"Drag your Model Here or Click to Upload"
-                })});
-        
-     }
-}
+                    .then( res => {this.setState({
+                        dropZoneText:"Drag your Model Here or Click to Upload"
+                    })});
+            
+        }
+    }
 
     validateForm(){
 
@@ -167,19 +134,32 @@ class PrintingPage extends Component{
         data.append('size',{size:this.state.modelSize, unit:this.state.modelSizeUnit});
         //Will check dropdown to get its valjue, but still now just this.
         data.append('color', this.state.colorChosen);
-        //Will put in url of other server here
+
+        //Could check localstorage but if ever do this not on web like just phone app then will require this way.
+        //Only need email, don't need rest of information.
+        data.append('user',JSON.this.props.userInfo.email);
         const response = await fetch(url+"/uploadFile", {
 
 
             method:"POST",
             body: data,
-            mode:'no-cors',
         })
         .then(res => {
             
-            console.log("finished fetching" + res);
+            console.log("uploaded the model");
+            this.setState({
+
+                //Kinda redundant cause they'll see the queue on the page be updated.
+                
+
+            });
          })
-        .catch(err =>{console.log(err);})
+        .catch(err =>{
+            console.log(err);
+            this.setState({
+                error:"An error has occured. Please try again."
+            });
+        })
         
     }
 
