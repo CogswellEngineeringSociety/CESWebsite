@@ -69,7 +69,7 @@ class App extends Component {
         
         <span hidden={this.state.user == null} className="LoggedInOptions">
 
-          <p> Signed in as {(this.state.user != null)? this.state.user.email : ""} </p>
+          <p> Signed in as {(this.state.user != null)? this .state.user.email : ""} </p>
           <Button  onClick={
             () => {this.changeLogin(null);}
 
@@ -84,8 +84,8 @@ class App extends Component {
         <Route exact  path="/" component={NewsPage}/>
 
         <Route path="/Login"  render={(props) => {
-        if (this.state.user != null) {return <div><Login changeLogin={this.changeLogin} {...props}/>
-        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
+        if (this.state.user == null) {return <div><Login changeLogin={this.changeLogin} {...props}/>
+        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Don't have an account? Register</Button></div>
         </div>}
         else {
           return  <Redirect to="/"/>
@@ -94,7 +94,7 @@ class App extends Component {
 
         <Route path="/Register" render={(props) => {
          if (this.state.user == null) {return <div><Registration changeLogin={this.changeLogin} {...props}/>
-        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
+        <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Already have an account? Login instead</Button></div>
         </div>}
         else{
           //A little slight delay on the redirect, unfortunately but wroks lol.

@@ -84,7 +84,7 @@ class Login extends Component{
     render(){
       
         return (
-            
+            <div>
             <Form>
                 <FormText color="warning" hidden = {this.props.location.state == null}> Please login to {(this.props.location.state != null)? this.props.location.state.prompt:""} </FormText>
                 <FormGroup>
@@ -99,6 +99,7 @@ class Login extends Component{
                 <Button onClick = {this.attemptLogin} > Login </Button>
 
             </Form>
+            </div>
 
             )
     }

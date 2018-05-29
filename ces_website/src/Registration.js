@@ -49,6 +49,8 @@ import "./Registration.css";
         data.append("password",this.state.password);
         data.append("major",this.state.major);
 
+        //Chang with loclahost for testing later, changing app to be different domain so keeping here for now
+        //the server app needs to be on too
         const response = await fetch("http://localhost:5000/register",{
 
             method:"POST",
@@ -63,13 +65,24 @@ import "./Registration.css";
         }
         );
 
-        const body = await response.json();
-
-        if (body != null && body.error != null){
+        if (response != null){
+            const body = await response.json();
+        
+            if (body != null){
+                    if (body.error != null){
+                        this.setState({
+                        error:body.error
+                        });
+                     }
+                     this.props.history.push("/Login");
+            }
+        }else{
             this.setState({
-                error:body.error
+                error: "Trouble connecting to server. Please check that you have a connection and try again."
             });
         }
+
+
 
     }
 
