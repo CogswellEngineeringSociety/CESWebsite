@@ -1,26 +1,48 @@
 import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
+import {Link} from 'react-router-dom';
 
 class Login extends Component{
 
     constructor(props){
         super(props);
-        this.attemptLogin = this.attemptLogin.bind(this);
         this.state = {
 
             email:"",
             password:"",
-            error:""
+            error:"",
+            requireVerification:false
+            //Either state change and render different based on check or new page
+            //for nor will jsut do check, not much more processing to check, though will check everytime re-render which is waste
+            //hmmmmm.
         }
+        this.attemptLogin = this.attemptLogin.bind(this);        
         this.fieldChanged = this.fieldChanged.bind(this);
+        this.sendVerification = this.sendVerification.bind(this);
     }
 
     
     attemptLogin(event){
 
         event.preventDefault();
+        if (this.state.requireVerification) return;
         this.validateLogin();
+    }
+
+    sendVerification(event){
+        event.preventDefault();
+
+        const user = fire.auth().currentUser;
+        
+        const verificationOptions = {url:"http://localhost:3000/Login"}
+        user.sendEmailVerification(verificationOptions)
+            .then(val => {
+                this.setState({
+                    error:"",
+                    requireVerification:false
+                })
+            })
     }
     
     validateLogin = async() =>{
@@ -33,6 +55,15 @@ class Login extends Component{
                 
                 const user = auth.currentUser;
 
+                if (!user.emailVerified){
+                    //If not verified then don't allow login yet, tell thme to check email and provide button to click again.
+
+                    this.setState({
+                        error:"This account is not verified. Please check your email and click on the verification link.",
+                        requireVerification:true
+                    });
+                    return;
+                }
                 const userInfoRef  = fire.database().ref("Users/"+user.uid);
                
                 //Gets profile informaiton of user.
@@ -96,6 +127,10 @@ class Login extends Component{
                     <Input name="password" type="password" id="passwordInput" value={this.state.password} onChange={this.fieldChanged}/>
                 </FormGroup>
                 <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
+                {/*Could definietly make this better than it is, prob not good to send back to that page, prob better
+                to just have another onclick that sends it again but don't want to duplicate code, I could jsut move the actual sending
+                to a method though. Fine for now*/}
+                <Button style={{display:"block",marginBottom:"1em"}} onClick={this.sendVerification} hidden = {!this.state.requireVerification}> Click here to send re-send the link </Button>
                 <Button onClick = {this.attemptLogin} > Login </Button>
 
             </Form>

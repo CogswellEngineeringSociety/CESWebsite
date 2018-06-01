@@ -78,9 +78,9 @@ import {Route} from 'react-router-dom';
                 console.log(user);
                 if (user.email == this.state.email){
                     console.log("signed in as newly registered");
-                    user.sendEmailVerification()
+                    const verificationOptions = {url:"http://localhost:3000/Login"}
+                    user.sendEmailVerification(verificationOptions)
                         .then(val => {
-                            console.log("sent email verification");
                             this.props.history.push("Register/Verify");
                         })
                 }

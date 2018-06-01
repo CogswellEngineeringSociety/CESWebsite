@@ -80,6 +80,11 @@ class App extends Component {
         <Route exact  path="/" component={NewsPage}/>
 
         <Route path="/Login"  render={(props) => {
+
+          if (this.state.user != null){
+            //Because if say they log in, on different tab, then click to log in page, it should redirect them to home instead.
+            return  <Redirect to="/"/>
+          }
         return <div><Login changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
         </div>}
@@ -101,7 +106,7 @@ class App extends Component {
                 }
                 
                 return <RegistrationSuccess email={user.email}/>
-            }}/>
+            }}/>      
 
         <Route path="/Calendar" component={Calendar}/>
 
