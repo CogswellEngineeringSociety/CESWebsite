@@ -6,6 +6,7 @@ import Login from './Login';
 import Registration from './Registration';
 import NewsPage from './News';
 import {Button} from 'reactstrap';
+import RegistrationSuccess from './RegistrationSuccess';
 
 import {
   BrowserRouter as Router,
@@ -17,6 +18,7 @@ import {
 } from 'react-router-dom';
 import PrintingPage from './3DPrinterPage';
 import Calendar from './Calendar';
+import fire from './back-end/fire';
 
 class App extends Component {
 
@@ -83,11 +85,23 @@ class App extends Component {
         </div>}
         }/>
 
-        <Route path="/Register" render={(props) => {
-        return <div><Registration changeLogin={this.changeLogin}/>
+        <Route exact path="/Register" render={(props) => {
+        return <div><Registration changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
         </div>}
         }/>
+
+         <Route exact path="/Register/Verify" render= {(props)=>{
+                
+                //Props passed in here should be props of this object, we'll find out if not can just use this.
+                const user  = fire.auth().currentUser;
+                if (user == null) {
+                  props.history.goBack();
+                  return null;
+                }
+                
+                return <RegistrationSuccess email={user.email}/>
+            }}/>
 
         <Route path="/Calendar" component={Calendar}/>
 

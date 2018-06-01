@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import {url} from './back-end/fire';
+import fire, { url } from './back-end/fire';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import "./Registration.css";
+import {Route} from 'react-router-dom';
 
  class Registration extends Component{
 
@@ -34,14 +35,24 @@ import "./Registration.css";
 
         event.preventDefault();
         if (this.validateForm()){
+            console.log("registering");
+            this.registerAccount()
+            .then(val => {
+               
+            })
+            .catch(err => {
+                console.log(err);
+            })
             //Then send post request to my other webapp to upload this user information, need to create that first.
-            this.registerAccount();
+           
+        
+            
         }
     }
 
     registerAccount = async() =>{
 
-        console.log("attempting to register");
+    
         const data = new FormData();
         data.append("firstName",this.state.firstName);
         data.append("lastName",this.state.lastName);
@@ -54,6 +65,29 @@ import "./Registration.css";
             method:"POST",
             body:data,
         })
+        .then(val => {
+            this.setState({
+                error:""
+            });
+            
+            console.log("registered");
+            fire.auth().signInWithEmailAndPassword(this.state.email,this.state.password)
+            .then(val=>{
+                console.log("done registering");
+                const user = fire.auth().currentUser;
+                console.log(user);
+                if (user.email == this.state.email){
+                    console.log("signed in as newly registered");
+                    user.sendEmailVerification()
+                        .then(val => {
+                            console.log("sent email verification");
+                            this.props.history.push("Register/Verify");
+                        })
+                }
+            });
+            
+
+        })
         .catch(err => {
           
             this.setState({
@@ -63,6 +97,7 @@ import "./Registration.css";
         }
         );
 
+        if (response == null) return;
         const body = await response.json();
 
         if (body != null && body.error != null){
@@ -205,9 +240,12 @@ import "./Registration.css";
     
                 </FormGroup>
     
+               
                 <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
-
+                
                 <Button onClick={this.onRegister}> Register </Button>
+
+                
             </Form>
         )
     }
