@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import fire from './back-end/fire';
 import Dropzone from 'react-dropzone';
+import './3DPrinterPage.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading } from 'reactstrap';
 
 //Will be in separate file later upon merging
@@ -58,6 +59,8 @@ class PrintingPage extends Component{
     //Hmm but non-admin storage doesn't have getFilse method
     updateQueue = async() => {
 
+        const url = "http://localhost:5000";
+        console.log("hello");
         //Right now just names, need to find way to get time into to it too maybe?
         const response =  await fetch(url+"/3DPrinterQueue",{
             method:"GET",
@@ -90,7 +93,7 @@ class PrintingPage extends Component{
 
        
         if (this.validateForm()){
-            this.uploadSecurely();
+            this.uploadSecurely()
 
                     .then( res => {this.setState({
                         dropZoneText:"Drag your Model Here or Click to Upload"
@@ -192,6 +195,7 @@ class PrintingPage extends Component{
         })
     }
 
+    
     updateSelectedItem(event){
 
         

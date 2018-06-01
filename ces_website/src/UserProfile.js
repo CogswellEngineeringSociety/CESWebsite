@@ -38,11 +38,14 @@ export default class UserProfile extends Component{
                newObj['name'] = key;
                pulledPrints.push(newObj);
             })
+            this.setState({
+                orderedPrints : pulledPrints
+            })
             
         });
-        this.setState({
-            orderedPrints : pulledPrints
-        })
+
+
+      
         
 
     }
@@ -132,12 +135,13 @@ export default class UserProfile extends Component{
         });
     }
 
-
     render(){
 
         return (
             //Will show all user information and models they ordered to print
             <div>
+                                <p> Your Credits: { this.props.userInfo.credits} </p>
+
                 <ListGroup>
                     <ListGroupItemHeading>
                         Your ordered prints.
@@ -157,18 +161,17 @@ export default class UserProfile extends Component{
 
                        })
                     }
-
                 </ListGroup>
                
                     {/*Name in info content will correspond to last info button clicked so that the popover shows up in the
                     correct spot*/}
-                <Popover placement="right" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
+                <Popover placement="down" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
                         <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
                         <PopoverBody>
-                            Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} 
-                            Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} 
-                            Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} 
-                            Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} 
+                            <p>Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} </p>
+                            <p>Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} </p>
+                            <p>Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} </p>
+                           <p> Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} </p>
                         </PopoverBody>
                 </Popover>
             </div>
