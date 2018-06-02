@@ -28,7 +28,7 @@ class App extends Component {
     const cachedUser = localStorage.getItem("user");
 
     this.state= {
-      user: JSON.parse(cachedUser) 
+      user: JSON.parse(cachedUser),
     };
 
 
@@ -39,10 +39,19 @@ class App extends Component {
   //Need to rework design of this to be better code-wise later
 
 
+  //Not what i'm looking for here, but remember reading not needing to re-render so this is something to add later.
+  shouldComponentUpdate(nextProps, nextState){
+
+   
+    return true;
+  }
   changeLogin(user){
+
+    console.log(localStorage.getItem("userChanged"))
+    
     
     this.setState({
-      user:user
+      user:user,
     });
     console.log(user);
 
@@ -57,6 +66,8 @@ class App extends Component {
      // this.props.history.push("/Login");
     }
   }
+
+  
 
   render() {
     return (
@@ -81,9 +92,20 @@ class App extends Component {
           }
 
         </span>
-        <Route exact  path="/" component={NewsPage}/>
+        <Route exact  path="/" render={(props)=>{
+          
+          if (localStorage.getItem("userChanged") == true){
 
+            window.location.reload();
+          }
+          
+          return <NewsPage/>}}/>
+
+          {/*Thing is fine for these, but if go to calendar should also now be logged in, but can't jsut reload all the time.*/}
         <Route path="/Login"  render={(props) => {
+          if (localStorage.getItem("user") !== null){
+            window.location.reload();
+          }
         if (this.state.user == null) {return <div><Login changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Don't have an account? Register</Button></div>
         </div>}
@@ -93,6 +115,11 @@ class App extends Component {
         }}/>
 
         <Route path="/Register" render={(props) => {
+
+          //CHecking cache cause state is per session, would have to refresh to sync it up.
+          if (localStorage.getItem("user") !== null){
+            window.location.reload();
+          }
          if (this.state.user == null) {return <div><Registration changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Already have an account? Login instead</Button></div>
         </div>}
