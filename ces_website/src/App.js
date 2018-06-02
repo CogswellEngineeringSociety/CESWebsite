@@ -8,6 +8,7 @@ import NewsPage from './News';
 import {Button} from 'reactstrap';
 import UserProfile from './UserProfile'
 import RegistrationSuccess from './RegistrationSuccess';
+import ForgotPasswordPage from './ForgotPassword';
 
 import {
   BrowserRouter as Router,
@@ -115,6 +116,11 @@ class App extends Component {
           
           return  <Redirect to="/"/>
         }
+        }}/>
+
+         <Route exact path="/ForgotPassword" render={(props)=>{
+                    console.log("hello");
+                  return <div><ForgotPasswordPage/></div>  
         }}/>
 
         <Route exact path="/Register" render={(props) => {

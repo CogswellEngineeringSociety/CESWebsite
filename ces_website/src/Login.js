@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
-import {Link} from 'react-router-dom';
-
+import {Link,Route} from 'react-router-dom';
 //Move this elsewhere. Need to get rid of the redirect in register cause that was bad anyway.
 const loggedOutPages = ["/Login", "/Register" , "/Register/Verify"];
 
@@ -137,13 +136,14 @@ class Login extends Component{
                     <Label for="passwordInput">Password</Label> 
                     <Input name="password" type="password" id="passwordInput" value={this.state.password} onChange={this.fieldChanged}/>
                 </FormGroup>
+                {/*Given how many of these have error part could make it so not duplicating this line, but that's code polish*/}
                 <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
                 {/*Could definietly make this better than it is, prob not good to send back to that page, prob better
                 to just have another onclick that sends it again but don't want to duplicate code, I could jsut move the actual sending
                 to a method though. Fine for now*/}
                 <Button style={{display:"block",marginBottom:"1em"}} onClick={this.sendVerification} hidden = {!this.state.requireVerification}> Click here to send re-send the link </Button>
-                <Button onClick = {this.attemptLogin} > Login </Button>
-
+                <Button onClick = {this.attemptLogin} > Login </Button> <Button tag={Link} to="/ForgotPassword"> Forgot Password? </Button>
+               
             </Form>
             </div>
 

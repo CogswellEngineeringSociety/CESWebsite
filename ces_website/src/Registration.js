@@ -3,6 +3,7 @@ import fire, { url } from './back-end/fire';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import "./Registration.css";
 import {Route} from 'react-router-dom';
+const validator = require('./util/validationFunctions');
 
  class Registration extends Component{
 
@@ -145,23 +146,13 @@ import {Route} from 'react-router-dom';
             return false;
         }
 
-        //Validating password
-        const pwRegex = [
-
-            /[a-z]/,
-            /[A-Z]/,
-            /[0-9]/
-        ];
-        
-        for (var i = 0; i < pwRegex.length && valid; ++i){
-            valid = pwRegex[i].test(this.state.password);
-        }
+        valid = validator.testPW(this.state.password);
 
         if (!valid){
             this.setState({
                 error:"Invalid Password"
             });
-            return false
+            return false;
         }
 
 
