@@ -110,6 +110,7 @@ class App extends Component {
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Don't have an account? Register</Button></div>
         </div>}
         else {
+          
           return  <Redirect to="/"/>
         }
         }}/>

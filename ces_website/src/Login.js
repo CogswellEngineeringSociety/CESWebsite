@@ -39,21 +39,21 @@ class Login extends Component{
                 userInfoRef.once('value').then(snapshot=>{
                     var userInfo = snapshot.val();
                     userInfo["uid"] = user.uid;
-                    this.props.changeLogin(userInfo);                   
+                    this.props.changeLogin(userInfo);  
+                    const history = this.props.history;
+                    if (this.props.location.state == null){
+
+                        //Using redirect to avoid going back to register, but it does show it for a split second
+                        //I probably should find way to check it here and avoid going there at all.
+                        history.goBack();
+                    }
+                    else{
+                        //This is when was forced to login when tried to go to a login required page.
+                        history.push(this.props.location.state.back);
+                    }
+    
                 })
-            
-                const history = this.props.history;
-                if (this.props.location.state == null){
-
-                    //Using redirect to avoid going back to register, but it does show it for a split second
-                    //I probably should find way to check it here and avoid going there at all.
-                    history.goBack();
-                }
-                else{
-                    //This is when was forced to login when tried to go to a login required page.
-                    history.push(this.props.location.state.back);
-                }
-
+               
             })
 
             .catch(err => {
