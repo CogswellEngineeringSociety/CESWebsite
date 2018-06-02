@@ -3,6 +3,9 @@ import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
 import {Link} from 'react-router-dom';
 
+//Move this elsewhere. Need to get rid of the redirect in register cause that was bad anyway.
+const loggedOutPages = ["/Login", "/Register" , "/Register/Verify"];
+
 class Login extends Component{
 
     constructor(props){
@@ -75,10 +78,9 @@ class Login extends Component{
             
                 const history = this.props.history;
                 if (this.props.location.state == null){
-
-                    //Using redirect to avoid going back to register, but it does show it for a split second
-                    //I probably should find way to check it here and avoid going there at all.
-                    history.goBack();
+                    
+                    //If not given place to go back to, ie: required authorization, then jsut go to home.
+                    history.push("/");
                 }
                 else{
                     //This is when was forced to login when tried to go to a login required page.

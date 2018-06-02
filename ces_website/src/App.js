@@ -29,7 +29,8 @@ class App extends Component {
     const cachedUser = localStorage.getItem("user");
 
     this.state= {
-      user: JSON.parse(cachedUser) 
+      user: JSON.parse(cachedUser),
+      previousPage: ""
     };
 
 
@@ -85,12 +86,19 @@ class App extends Component {
             //Because if say they log in, on different tab, then click to log in page, it should redirect them to home instead.
             return  <Redirect to="/"/>
           }
+         
         return <div><Login changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Register">Register</Button></div>
         </div>}
         }/>
 
         <Route exact path="/Register" render={(props) => {
+
+          //Instead of going back, cause thne I'll end up in same problem where will be in same spot.
+          if (this.state.user != null){
+            return <Redirect to ="/"/>
+          }
+
         return <div><Registration changeLogin={this.changeLogin} {...props}/>
         <div style={{margin:"auto",width:"50%"}}><Button tag={Link}  style={{marginTop:"1em"}} className="Button" to="/Login">Login</Button></div>
         </div>}
@@ -101,10 +109,11 @@ class App extends Component {
                 //Props passed in here should be props of this object, we'll find out if not can just use this.
                 const user  = fire.auth().currentUser;
                 if (user == null) {
+
                   props.history.goBack();
                   return null;
                 }
-                
+               
                 return <RegistrationSuccess email={user.email}/>
             }}/>      
 
