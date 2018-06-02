@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import {url} from './back-end/fire';
+import fire, { url } from './back-end/fire';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import "./Registration.css";
+import {Route} from 'react-router-dom';
 
  class Registration extends Component{
 
@@ -34,14 +35,24 @@ import "./Registration.css";
 
         event.preventDefault();
         if (this.validateForm()){
+            console.log("registering");
+            this.registerAccount()
+            .then(val => {
+               
+            })
+            .catch(err => {
+                console.log(err);
+            })
             //Then send post request to my other webapp to upload this user information, need to create that first.
-            this.registerAccount();
+           
+        
+            
         }
     }
 
     registerAccount = async() =>{
 
-        console.log("attempting to register");
+    
         const data = new FormData();
         data.append("firstName",this.state.firstName);
         data.append("lastName",this.state.lastName);
@@ -55,6 +66,29 @@ import "./Registration.css";
 
             method:"POST",
             body:data,
+        })
+        .then(val => {
+            this.setState({
+                error:""
+            });
+            
+            console.log("registered");
+            fire.auth().signInWithEmailAndPassword(this.state.email,this.state.password)
+            .then(val=>{
+                console.log("done registering");
+                const user = fire.auth().currentUser;
+                console.log(user);
+                if (user.email == this.state.email){
+                    console.log("signed in as newly registered");
+                    const verificationOptions = {url:"http://localhost:3000/Login"}
+                    user.sendEmailVerification(verificationOptions)
+                        .then(val => {
+                            this.props.history.push("Register/Verify");
+                        })
+                }
+            });
+            
+
         })
         .catch(err => {
           
@@ -76,14 +110,19 @@ import "./Registration.css";
                      }
                      this.props.history.push("/Login");
             }
-        }else{
+        }
+        else{
+     
+        const body = await response.json();
+
+        if (body != null && body.error != null){
             this.setState({
                 error: "Trouble connecting to server. Please check that you have a connection and try again."
             });
         }
 
 
-
+        }
     }
 
     validateForm(){
@@ -218,9 +257,12 @@ import "./Registration.css";
     
                 </FormGroup>
     
+               
                 <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
-
+                
                 <Button onClick={this.onRegister}> Register </Button>
+
+                
             </Form>
         )
     }

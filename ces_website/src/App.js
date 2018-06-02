@@ -7,6 +7,7 @@ import Registration from './Registration';
 import NewsPage from './News';
 import {Button} from 'reactstrap';
 import UserProfile from './UserProfile'
+import RegistrationSuccess from './RegistrationSuccess';
 
 import {
   BrowserRouter as Router,
@@ -18,6 +19,7 @@ import {
 } from 'react-router-dom';
 import PrintingPage from './3DPrinterPage';
 import Calendar from './Calendar';
+import fire from './back-end/fire';
 
 class App extends Component {
 
@@ -89,7 +91,7 @@ class App extends Component {
           <Button tag={Link} to="/UserProfile">Profile
           </Button>
 
-          }
+          
 
         </span>
         <Route exact  path="/" render={(props)=>{
@@ -115,7 +117,7 @@ class App extends Component {
         }
         }}/>
 
-        <Route path="/Register" render={(props) => {
+        <Route exact path="/Register" render={(props) => {
 
           //CHecking cache cause state is per session, would have to refresh to sync it up.
           if (localStorage.getItem("user") !== null){
@@ -130,6 +132,19 @@ class App extends Component {
         }
 
       }}/>
+
+         <Route exact path="/Register/Verify" render= {(props)=>{
+                
+                //Props passed in here should be props of this object, we'll find out if not can just use this.
+                const user  = fire.auth().currentUser;
+                if (user == null) {
+
+                  props.history.goBack();
+                  return null;
+                }
+               
+                return <RegistrationSuccess email={user.email}/>
+            }}/>      
 
         <Route path="/Calendar" component={Calendar}/>
 
