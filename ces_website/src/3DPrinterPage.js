@@ -36,6 +36,7 @@ class PrintingPage extends Component{
         this.toggleColorDD = this.toggleColorDD.bind(this);
         this.toggleSizeDD = this.toggleSizeDD.bind(this);
         this.alternateSizeSelection = this.alternateSizeSelection.bind(this);
+        this.updateSelectedItem = this.updateSelectedItem.bind(this);
     }
 
     
@@ -60,7 +61,6 @@ class PrintingPage extends Component{
     updateQueue = async() => {
 
         const url = "http://localhost:5000";
-        console.log("hello");
         //Right now just names, need to find way to get time into to it too maybe?
         const response =  await fetch(url+"/3DPrinterQueue",{
             method:"GET",
@@ -70,12 +70,10 @@ class PrintingPage extends Component{
         .catch(err =>{
             console.log("error here" + err);
         })
-        console.log(response);
 
        const body = await response.json()
         .catch(err => { console.log(err);})
 
-        console.log(body.queue);
 
         return body;
     }
@@ -189,6 +187,7 @@ class PrintingPage extends Component{
     }
 
     alternateSizeSelection(){
+        console.log("Default size " + this.state.defaultSizeSelection);
         this.setState({
 
             defaultSizeSelection : !this.state.defaultSizeSelection
@@ -232,18 +231,18 @@ class PrintingPage extends Component{
             
                 <Form>
 
-                    <FormGroup className="DefaultSize" isOpen = {this.state.defaultSizeSelection}>
+                    <FormGroup className="DefaultSize" hidden = {!this.state.defaultSizeSelection}>
                     <ButtonGroup className = "SizeSelection"> 
                         {/*Add images here later*/ }
                         {this.defaultSizes.map(val => {
 
-                            <Button name="size" onClick = {this.updateSelectedItem}> {val} </Button>
+                            return <Button name="size" className="DefaultSize" onClick = {this.updateSelectedItem}> {val} </Button>
                         })}
                     </ButtonGroup>
                     </FormGroup>
                     
                     
-                    <FormGroup className="CustomSize" isOpen = {!this.state.defaultSizeSelection}>
+                    <FormGroup className="CustomSize" hidden = {this.state.defaultSizeSelection}>
 
                     <Input name="size" onChange={(input)=>{this.setState({size:input.value});}} className = "SizeSelection" placeholder="Input size"></Input> 
 
@@ -257,14 +256,14 @@ class PrintingPage extends Component{
                             <DropdownMenu>
                             {this.sizeUnits.map(value =>{
 
-                                <DropdownItem name="modelSizeUnit" onClick = {this.updateSelectedItem}> {value} </DropdownItem>
+                                return <DropdownItem name="modelSizeUnit" onClick = {this.updateSelectedItem}> {value} </DropdownItem>
                             })}
                             </DropdownMenu>
 
                         </Dropdown>
 
                     </FormGroup>
-                    <Button onClick={this.alternateSizeSelection}> Select a {this.sizeSelectionMethod? "Custom" : "Default"} size</Button>
+                    <Button onClick={this.alternateSizeSelection}> Select a {this.state.defaultSizeSelection? "Custom" : "Default"} size</Button>
 
                     <Dropdown className="ColorPicker" isOpen={this.state.colorDropDown} toggle={this.toggleColorDD}>
 
