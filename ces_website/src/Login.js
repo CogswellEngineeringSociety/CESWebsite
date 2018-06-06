@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {Input,FormText,Form,FormGroup,Label,Button,Alert} from 'reactstrap';
 import fire from './back-end/fire';
 import {Link,Route} from 'react-router-dom';
+import key from './util/keyIterator';
 //Move this elsewhere. Need to get rid of the redirect in register cause that was bad anyway.
 const loggedOutPages = ["/Login", "/Register" , "/Register/Verify"];
 
@@ -26,21 +27,21 @@ class Login extends Component{
 
     //Since literally same thing as register, will prob move this to it's own method, extra overhead but reduce dupe code.
     //For now it's fine.
-    shouldComponentUpdate(prevProps, prevState){
-
-        if (prevProps.userInfo != this.props.userInfo){
+    shouldComponentUpdate(newProps, newState){
+        
+        if (newProps.userInfo != this.props.userInfo){
             window.location.reload();
             return true;
         }
 
-        const keys = Object.keys(prevState);
+        const keys = Object.keys(newState);
 
-        //Basically if anything in the state has changed, then yes update
-        for (key in keys){
-            if (prevState[key] != this.state[key]){
+        for (var i = 0;  i < keys.length; ++i){
+            if (key(newState,i) != key(this.state,i)){
                 return true;
             }
         }
+
         return false;
     }
     

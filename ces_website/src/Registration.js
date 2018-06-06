@@ -3,7 +3,9 @@ import fire, { url } from './back-end/fire';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import "./Registration.css";
 import {Route} from 'react-router-dom';
+import key from './util/keyIterator';
 const validator = require('./util/validationFunctions');
+
 
  class Registration extends Component{
 
@@ -32,22 +34,31 @@ const validator = require('./util/validationFunctions');
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
     }
 
-    shouldComponentUpdate(prevProps, prevState){
+    shouldComponentUpdate(newProps, newState){
         
-        if (prevProps.userInfo != this.props.userInfo){
+        if (newProps.userInfo != this.props.userInfo){
             window.location.reload();
             return true;
         }
 
-        const keys = Object.keys(prevState);
+        const keys = Object.keys(newState);
 
-        //Basically if anything in the state has changed, then yes update
-        for (key in keys){
-            if (prevState[key] != this.state[key]){
+        for (var i = 0;  i < keys.length; ++i){
+            if (key(newState,i) != key(this.state,i)){
                 return true;
             }
         }
+
         return false;
+    }
+
+    componentWillUpdate(){
+
+        if (this.state.error != ""){
+            this.setState({
+                error:""
+            })
+       }
     }
 
     onRegister(event){
@@ -194,7 +205,6 @@ const validator = require('./util/validationFunctions');
         const target = event.target;
         this.setState({
             [target.name] : target.value,
-            error:""
         });
 
     }
@@ -202,7 +212,6 @@ const validator = require('./util/validationFunctions');
     majorSelected(event){
         this.setState({
             "major":event.target.textContent,
-            error:""
         });
     }
 
