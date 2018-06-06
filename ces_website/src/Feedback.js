@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form,Label,Input,Dropdown,DropdownItem,DropdownToggle,DropdownMenu,FormGroup} from 'reactstrap';
+import {Form,Label,Input,Dropdown,DropdownItem,DropdownToggle,DropdownMenu,FormGroup,Alert} from 'reactstrap';
 import fire,{url} from './back-end/fire';
 import {Link} from 'react-router-dom';
 /*
@@ -19,7 +19,8 @@ class FeedbackPage extends Component{
             categoryMenuOpen : false,
             topic:"",
             description:"",
-            author:""
+            author:"",
+            onSubmitMessage:""
         }
 
         this.onUpdateField = this.onUpdateField.bind(this);
@@ -54,14 +55,16 @@ class FeedbackPage extends Component{
 
         
         return newState.category != this.state.category || newState.topic != this.state.topic || 
-        newState.description != this.state.description || newState.categoryMenuOpen != this.state.categoryMenuOpen;
+        newState.description != this.state.description || newState.categoryMenuOpen != this.state.categoryMenuOpen
+        ||newState.onSubmitMessage != this.state.onSubmitMessage;
     }
 
     onUpdateField(event){
         const target = event.target;
 
         this.setState({
-            [target.name] : target.value
+            [target.name] : target.value,
+            onSubmitMessage:""
         });
     }
 
@@ -69,13 +72,15 @@ class FeedbackPage extends Component{
 
         this.setState({
 
-            categoryMenuOpen : !this.state.categoryMenuOpen
+            categoryMenuOpen : !this.state.categoryMenuOpen,
+            onSubmitMessage:""
         });
     }
 
     setCategory(event){
         this.setState({
-            category:event.target.value
+            category:event.target.value,
+            onSubmitMessage:""
         });
     }
 
@@ -83,14 +88,42 @@ class FeedbackPage extends Component{
 
         event.preventDefault();
 
-       
+        var data = new FormData();
+        if (this.props.userInfo == null){
+            data.append("userInfo",{name:this.state.author});
+        }
+        else{
+            data.append("userInfo",this.props.userInfo);
+        }
+
+        data.append("topic",this.state.topic);
+        data.append("desc",this.state.description);
+        data.append("category",this.state.category);
+        //Sends post request to back-end app.
+        fetch(url+"/UserFeedback",{
+            method:"POST",
+            body:data
+        })
+        .then(val => {
+
+            this.setState({
+                onSubmitMessage:"Your feedback has been successfully submitted"
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            this.setState({
+                onSubmitMessage:"Failed to submit feedback. Please try again or email us directly at ces@cogswell.edu"
+            });
+        })
     }
 
     render(){
 
         return (<div>
             
-                <Form onSubmit = {this.submitFeedback}>
+                <p id="successText"> {this.state.onSubmitMessage} </p>
+                <Form onSubmit = {this.submitFeedback} hidden = {this.state.onSubmitMessage.includes("success")}>
 
                     <FormGroup hidden = {this.props.userInfo == null}>
                         <Label for="authorInput"> Enter your name here or <Link to ="/Login"> Login </Link> </Label>
@@ -114,6 +147,7 @@ class FeedbackPage extends Component{
                         </DropdownMenu>
 
                     </Dropdown>
+                    <Alert color="warning" hidden = {!this.state.onSubmitMessage.includes("Failed")}> {this.state.onSubmitMessage}</Alert>
                     <Input type="submit" value="Submit Feedback" />
                 </Form>
             
