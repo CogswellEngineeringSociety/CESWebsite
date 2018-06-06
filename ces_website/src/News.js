@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 
 import fire, {url} from './back-end/fire';
+import NewsEntry from './NewsEntry';
 
 //Reading news in will be public to all, writing news will be done through post request to the admin app
 class NewsPage extends Component{
@@ -48,7 +49,7 @@ class NewsPage extends Component{
         //For now just all
         const dbRef = fire.database().ref("News/");
 
-
+        //To hold data pulled, so can set state to trigger update check.
         var data = []
         
         dbRef.once('value')
@@ -67,27 +68,16 @@ class NewsPage extends Component{
         .catch(err => {console.log(err);})
     }
 
-    //Don't beleieve need to send any data, prob repeatedly call this on an interval instead of update, slightly better?
-    pushNewEntry = async() => {
-
-        const response = await fetch(url+"/NewsEntries",{
-            method:"POST",
-            
-
-        });
-
-        if (response.status.valueOf() != 200){
-            throw new Error("Failed to connect");
-        }
-
-        const body = await response.json();
-
-        return body;
-    }
+  
 
 
     render(){
         return (<div>
+                    {this.state.newsEntries.map(newsEntry => {
+                        console.log(newsEntry);
+                        //So this is looping thrugh it correctly, but not rendering it?
+                        return <NewsEntry topic = {newsEntry.topic} author = {newsEntry.author}  desc = {newsEntry.desc}/>
+                    })}
                 
             
             
