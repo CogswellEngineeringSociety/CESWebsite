@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import fire from './back-end/fire';
 import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css';
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading } from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading ,
+Popover,PopoverHeader,PopoverBody} from 'reactstrap';
 
 //Will be in separate file later upon merging
 const url ="http://localhost:5000";
@@ -25,7 +26,12 @@ class PrintingPage extends Component{
             modelDropDown:false,
             defaultSizeSelection:true,
             error:"",
-            success:""
+            success:"",
+
+            //All this stuff taking from my code in UserProfile, will think of way to make it modular later
+            infoOpen:false,
+            //For actual content
+            infoContent:null
             
         }
         this.sizeUnits = ["mm","inches"];
@@ -36,6 +42,7 @@ class PrintingPage extends Component{
         this.toggleSizeDD = this.toggleSizeDD.bind(this);
         this.alternateSizeSelection = this.alternateSizeSelection.bind(this);
         this.updateSelectedItem = this.updateSelectedItem.bind(this);
+        this.toggleInfo = this.toggleInfo.bind(this);
         
         this.refreshQueue = this.refreshQueue.bind(this);
         setInterval(this.refreshQueue,1000);
@@ -54,7 +61,8 @@ class PrintingPage extends Component{
     }
     shouldComponentUpdate(prevProps, prevState){
 
-        if (prevState.queue.length != this.state.queue.length){
+        if (prevState.infoOpen != this.state.infoOpen || prevState.infoContent !== this.state.infoContent ||
+            prevState.queue.length != this.state.queue.length ){
             return true;
         }
         else{
@@ -76,10 +84,11 @@ class PrintingPage extends Component{
     //It's actually every toher frame, not just when needs to update, fuck.
     refreshQueue(){
         this.updateQueue()
-        .then(body =>  { console.log(body);this.setState({queue:body.queue})})
+        .then(body =>  { this.setState({queue:body.queue})})
         .catch(err => {console.log("Still " + err)})
     }
     
+
 
     //Read access on queue will also be public.
     //Writing will not be so that will be handled on private server.
@@ -104,6 +113,34 @@ class PrintingPage extends Component{
         return body;
     }
 
+    toggleInfo(event){
+
+        const nameOfFile = event.target.name.split("_")[0];
+
+        const toDisplay = this.state.queue.find((element) => {
+            console.log(element.name);
+            console.log(nameOfFile);
+            return element.name === nameOfFile;
+        });
+
+        //If was info was clicked and was on same item as before, then this means close the info box
+        if (this.state.infoContent != null && this.state.infoContent.name == nameOfFile){
+            
+            this.setState({
+                infoOpen: false,
+                infoContent:null
+
+            });
+        }
+        else{
+
+            this.setState({
+                infoOpen : true,
+                infoContent:this.state.queue.find((modelInfo) => { if (modelInfo.name == nameOfFile) return true;})
+            });
+        }
+    }
+
     pullAvailableColors(){
             fire.database().ref("PrinterState/Color").once('value')
             .then(snapshot => {this.setState({
@@ -125,6 +162,7 @@ class PrintingPage extends Component{
             
         }
     }
+    
 
     validateForm(){
 
@@ -223,8 +261,6 @@ class PrintingPage extends Component{
     
     updateSelectedItem(event){
 
-        
-
         const target = event.target;
 
         this.setState({
@@ -240,17 +276,38 @@ class PrintingPage extends Component{
         return (
            
             <div>
+                <ListGroup>
 
-                <ListGroup> 
-                    <ListGroupItemHeading> Models in Queue to Print </ListGroupItemHeading>
+                    <ListGroupItemHeading>
+                        Ordered Prints
+
+                    </ListGroupItemHeading>
                     {
-                        (this.state.queue.length == 0)? <ListGroupItem color="info"> None </ListGroupItem>: 
-                        this.state.queue.map(model =>{
-                           
-                       return  <ListGroupItem color="info">{model.name} </ListGroupItem>
-                    })}
+                         (this.state.queue.length == 0)? <ListGroupItem> None </ListGroupItem> :
 
+                            this.state.queue.map((order) => {
+
+                            //Buttons will be floated to right of name.
+                            return <ListGroupItem> {order.name} 
+
+                            <Button name={order.name+"_info"} id={order.name+"_info"} onClick = {this.toggleInfo}> Info </Button>
+                        </ListGroupItem>
+
+                       })
+                    }
                 </ListGroup>
+                {/*Will change this and userprofile to be modular and switch the null part, will create custom popoveritem*
+                    Right now multiple buttons mapped to one popover(cause only one need be open, but maybe not best way, can
+                    force only one open another way. Yeah cleaner and the positions gets fucked.*/}
+                <Popover placement="bottom" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
+                        <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
+                        <PopoverBody>
+                            <p>Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} </p>
+                            <p>Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} </p>
+                            <p>Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} </p>
+                           <p> Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} </p>
+                        </PopoverBody>
+                </Popover>
                {/*Impossible for user to be null on this page cause will redirect them to login if go to this path*/}
                 <p> Your Credits: { this.props.userInfo.credits} </p>
                 
