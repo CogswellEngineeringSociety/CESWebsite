@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {Form,Label,Input,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
-import fire from './back-end/fire';
+import {Form,Label,Input,Dropdown,DropdownItem,DropdownToggle,DropdownMenu,FormGroup} from 'reactstrap';
+import fire,{url} from './back-end/fire';
+import {Link} from 'react-router-dom';
 /*
 
 This page will have simple form. Topic and description.
@@ -17,12 +18,14 @@ class FeedbackPage extends Component{
             categories : ["Unspecified"],
             categoryMenuOpen : false,
             topic:"",
-            description:""
+            description:"",
+            author:""
         }
 
         this.onUpdateField = this.onUpdateField.bind(this);
         this.toggleCategory = this.toggleCategory.bind(this);
         this.setCategory = this.setCategory.bind(this);
+        this.submitFeedback = this.submitFeedback.bind(this);
     }
 
     pullCategories(){
@@ -76,11 +79,23 @@ class FeedbackPage extends Component{
         });
     }
 
+    submitFeedback(event){
+
+        event.preventDefault();
+
+       
+    }
+
     render(){
 
         return (<div>
             
-                <Form>
+                <Form onSubmit = {this.submitFeedback}>
+
+                    <FormGroup hidden = {this.props.userInfo == null}>
+                        <Label for="authorInput"> Enter your name here or <Link to ="/Login"> Login </Link> </Label>
+                        <Input type="text" id= "authorInput" name="author" value={this.state.author} onChange = {this.onUpdateField}/>
+                    </FormGroup>
                     <Label for="topicInput" > Topic </Label>
                     <Input id="topicInput" name = "topic" type="text" value={this.state.topic} onChange={this.onUpdateField}/>
                     <Label for = "descInput"> Description </Label>
@@ -99,7 +114,7 @@ class FeedbackPage extends Component{
                         </DropdownMenu>
 
                     </Dropdown>
-
+                    <Input type="submit" value="Submit Feedback" />
                 </Form>
             
             </div>
