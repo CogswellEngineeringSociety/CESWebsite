@@ -32,6 +32,24 @@ const validator = require('./util/validationFunctions');
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
     }
 
+    shouldComponentUpdate(prevProps, prevState){
+        
+        if (prevProps.userInfo != this.props.userInfo){
+            window.location.reload();
+            return true;
+        }
+
+        const keys = Object.keys(prevState);
+
+        //Basically if anything in the state has changed, then yes update
+        for (key in keys){
+            if (prevState[key] != this.state[key]){
+                return true;
+            }
+        }
+        return false;
+    }
+
     onRegister(event){
 
         event.preventDefault();

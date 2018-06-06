@@ -24,6 +24,25 @@ class Login extends Component{
         this.sendVerification = this.sendVerification.bind(this);
     }
 
+    //Since literally same thing as register, will prob move this to it's own method, extra overhead but reduce dupe code.
+    //For now it's fine.
+    shouldComponentUpdate(prevProps, prevState){
+
+        if (prevProps.userInfo != this.props.userInfo){
+            window.location.reload();
+            return true;
+        }
+
+        const keys = Object.keys(prevState);
+
+        //Basically if anything in the state has changed, then yes update
+        for (key in keys){
+            if (prevState[key] != this.state[key]){
+                return true;
+            }
+        }
+        return false;
+    }
     
     attemptLogin(event){
 
@@ -39,6 +58,7 @@ class Login extends Component{
 
         const user = fire.auth().currentUser;
         
+        //Will change this to client url and change url to back-end url.
         const verificationOptions = {url:"http://localhost:3000/Login"}
         user.sendEmailVerification(verificationOptions)
             .then(val => {
