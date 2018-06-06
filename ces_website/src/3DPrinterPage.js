@@ -5,8 +5,7 @@ import './3DPrinterPage.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading } from 'reactstrap';
 
 //Will be in separate file later upon merging
-const url ="https://middleman2.herokuapp.com"
-
+const url ="http://localhost:5000";
 class PrintingPage extends Component{
 
     constructor(props){
@@ -37,6 +36,9 @@ class PrintingPage extends Component{
         this.toggleSizeDD = this.toggleSizeDD.bind(this);
         this.alternateSizeSelection = this.alternateSizeSelection.bind(this);
         this.updateSelectedItem = this.updateSelectedItem.bind(this);
+        
+        this.refreshQueue = this.refreshQueue.bind(this);
+        setInterval(this.refreshQueue,1000);
     }
 
     
@@ -46,11 +48,35 @@ class PrintingPage extends Component{
 
        
     }
+
+    componentWillUpdate(){
+        console.log("Im called?");
+    }
+    shouldComponentUpdate(prevProps, prevState){
+
+        if (prevState.queue.length != this.state.queue.length){
+            return true;
+        }
+        else{
+            for (var i = 0; i < prevState.queue.length; ++i){
+                //Should do sha
+                const prevStateModel = prevState.queue[i];
+                const currStateModel = this.state.queue[i];
+                //This one I will add the ands to for everything 
+                if (prevStateModel.name != currStateModel.name){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
     //In update so that while they're filling out form, this will auto update.
     //It's actually every toher frame, not just when needs to update, fuck.
-    componentWillUpdate(){
+    refreshQueue(){
         this.updateQueue()
-        .then(body =>  { this.setState({queue:body.queue})})
+        .then(body =>  { console.log(body);this.setState({queue:body.queue})})
         .catch(err => {console.log("Still " + err)})
     }
     
@@ -220,8 +246,8 @@ class PrintingPage extends Component{
                     {
                         (this.state.queue.length == 0)? <ListGroupItem color="info"> None </ListGroupItem>: 
                         this.state.queue.map(model =>{
-                        const name = model.split("/")[1];
-                       return  <ListGroupItem color="info"> {name} </ListGroupItem>
+                           
+                       return  <ListGroupItem color="info">{model.name} </ListGroupItem>
                     })}
 
                 </ListGroup>
