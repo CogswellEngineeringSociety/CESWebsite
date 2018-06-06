@@ -163,7 +163,7 @@ class App extends Component {
             return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
         }}/>
 
-        
+        <Route path = "/Feedback" component = {Feedback}/>
 
         </div>
         </Router>
