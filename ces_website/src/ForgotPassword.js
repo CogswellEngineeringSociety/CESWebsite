@@ -18,7 +18,6 @@ class ForgotPasswordPage extends Component{
 
         this.updateField = this.updateField.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
-        this.sendAgain = this.sendAgain.bind(this);
     }
 
     updateField(event){
@@ -32,7 +31,6 @@ class ForgotPasswordPage extends Component{
 
     resetPassword(event){
         event.preventDefault();
-        console.log("resetting password");
 
         
         //Verifying email first, need to 
@@ -41,17 +39,11 @@ class ForgotPasswordPage extends Component{
         if (!regex.test(this.state.email)){
 
             this.setState({
-                error:"Invalid email, all accounts must have an email @cogswell.edu"
+                error:"Invalid email."
             });
             return;
         }
-        if (!validator.testPW(this.state.newPassword)){
-            this.setState({
-                error:"Invalid Password"
-            });
-            return;
-        }
-
+        
         this.tryResetPassword();
         
 
@@ -60,7 +52,7 @@ class ForgotPasswordPage extends Component{
          //Will send post request to other app to reset password.
          var data = new FormData();
          data.append("email",this.state.email);
-         data.append("password",this.state.newPassword);
+
          const response = await fetch(url+"/ResetPassword",{
             method:"POST",
           
@@ -89,15 +81,7 @@ class ForgotPasswordPage extends Component{
 
     }
     
-    
-
-    sendAgain(event){
-        event.preventDefault();
-
-        this.setState({
-            resetRequestSent:false
-        });
-    }
+  
 
     render(){
         return (<div>
@@ -105,18 +89,10 @@ class ForgotPasswordPage extends Component{
                 <Form onSubmit={this.resetPassword} hidden={this.state.resetRequestSent} >
                     <Label for="emailInput"> Enter your Email </Label>
                     <Input type="email" id="emailInput" name="email" value={this.state.email} onChange={this.updateField}/>
-                    <Label for="newPassword"> Enter Your New Password </Label>
-                    <FormText className="FormPrompt"> (Password must at a minimum of 6 characters and contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
-
-                    <Input type="password" id="newPassword" name="newPassword" value={this.state.newPassword} onChange={this.updateField}/>
-                    <Input className="Button" type="submit" value="Reset Password"/>
-                    <Alert color="danger" isOpen={this.state.error !== ""}> {this.state.error} </Alert>
-                    
+                    <Input type="submit" value="Send Reset Request"/>
                 </Form>          
                 <div hidden = {!this.state.resetRequestSent}>
-                    <p> Your password has been reset </p>
-                    <Button onClick={this.sendAgain}> Reset Again</Button>
-                    <Button tag={Link} to="/Login"> Login </Button>
+                    <p> We have sent an email to {this.state.email} with further instructions. </p>
                 </div>
             </div>)
     }
