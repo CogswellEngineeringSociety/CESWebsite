@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Form,Label,Input,Dropdown,DropdownItem,DropdownToggle,DropdownMenu,FormGroup,Alert} from 'reactstrap';
-import fire,{url} from './back-end/fire';
+import fire from './back-end/fire';
 import {Link} from 'react-router-dom';
 /*
 
@@ -8,6 +8,7 @@ This page will have simple form. Topic and description.
 Author of feedback will be from auth.
 
 */
+const url = "http://localhost:5000";
 class FeedbackPage extends Component{
 
     constructor(props){
@@ -15,7 +16,6 @@ class FeedbackPage extends Component{
 
         this.state = {
             category:"Unspecified",
-            categories : ["Unspecified"],
             categoryMenuOpen : false,
             topic:"",
             description:"",
@@ -23,40 +23,20 @@ class FeedbackPage extends Component{
             onSubmitMessage:""
         }
 
+        this.categories = ["Design","Website Features","Events", "3DPrinting"];
         this.onUpdateField = this.onUpdateField.bind(this);
         this.toggleCategory = this.toggleCategory.bind(this);
         this.setCategory = this.setCategory.bind(this);
         this.submitFeedback = this.submitFeedback.bind(this);
     }
 
-    pullCategories(){
-        //This won't be called every frame, it's not as urgent, but should be updated according to database.
-        //The categories are keys for all entries, so it's not like just plopping categories themselves just to do this
-        //but it is beneficial that don't gotta reach in code to change this, but not execessive since already there.
-        const dbRef = fire.database().ref("Feedback/");
-        var categs = []
-        dbRef.once('value')
-            .then(snapshot => {
-
-                snapshot.foreach(value => {
-                    categs.push(value);
-                })
-                categs.push("Unspecified");
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
-
-    componentWillMount(){
-        this.pullCategories();
-    }
     shouldComponentUpdate(newProps, newState){
 
         
+        //Will switch this with modular solution wrote in Login and Register later.
         return newState.category != this.state.category || newState.topic != this.state.topic || 
         newState.description != this.state.description || newState.categoryMenuOpen != this.state.categoryMenuOpen
-        ||newState.onSubmitMessage != this.state.onSubmitMessage;
+        ||newState.onSubmitMessage != this.state.onSubmitMessage || newState.author != this.state.author;
     }
 
     onUpdateField(event){
@@ -73,13 +53,12 @@ class FeedbackPage extends Component{
         this.setState({
 
             categoryMenuOpen : !this.state.categoryMenuOpen,
-            onSubmitMessage:""
         });
     }
 
     setCategory(event){
         this.setState({
-            category:event.target.value,
+            category:event.target.textContent,
             onSubmitMessage:""
         });
     }
@@ -89,11 +68,12 @@ class FeedbackPage extends Component{
         event.preventDefault();
 
         var data = new FormData();
-        if (this.props.userInfo == null){
-            data.append("userInfo",{name:this.state.author});
+        if (this.props.userInfo != null){
+            data.append("uid",this.props.userInfo.uid);
+            data.append("name",this.props.userInfo.firstName + " " + this.props.userInfo.lastName);
         }
         else{
-            data.append("userInfo",this.props.userInfo);
+            data.append("name",this.state.author);
         }
 
         data.append("topic",this.state.topic);
@@ -125,7 +105,7 @@ class FeedbackPage extends Component{
                 <p id="successText"> {this.state.onSubmitMessage} </p>
                 <Form onSubmit = {this.submitFeedback} hidden = {this.state.onSubmitMessage.includes("success")}>
 
-                    <FormGroup hidden = {this.props.userInfo == null}>
+                    <FormGroup hidden = {this.props.userInfo != null}>
                         <Label for="authorInput"> Enter your name here or <Link to ="/Login"> Login </Link> </Label>
                         <Input type="text" id= "authorInput" name="author" value={this.state.author} onChange = {this.onUpdateField}/>
                     </FormGroup>
@@ -134,13 +114,13 @@ class FeedbackPage extends Component{
                     <Label for = "descInput"> Description </Label>
                     <Input id="descInput" name = "description" type="text" value={this.state.description} onChange={this.onUpdateField}/>
             
-                    <Dropdown toggle>
+                    <Dropdown toggle = {this.toggleCategory} isOpen = {this.state.categoryMenuOpen}>
                         <DropdownToggle caret>
                             {this.state.category}
                         </DropdownToggle>
 
                         <DropdownMenu>
-                            {this.state.categories.map(val => {
+                            {this.categories.map(val => {
                                 return <DropdownItem onClick = {this.setCategory}> {val} </DropdownItem>
                             })}
 
@@ -157,3 +137,4 @@ class FeedbackPage extends Component{
     }
 
 }
+export default FeedbackPage
