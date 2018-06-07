@@ -4,6 +4,7 @@ import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading ,
 Popover,PopoverHeader,PopoverBody} from 'reactstrap';
+import ModelInfoBlock from './ModelInfoBlock'
 
 //Will be in separate file later upon merging
 const url ="http://localhost:5000";
@@ -42,17 +43,16 @@ class PrintingPage extends Component{
         this.toggleSizeDD = this.toggleSizeDD.bind(this);
         this.alternateSizeSelection = this.alternateSizeSelection.bind(this);
         this.updateSelectedItem = this.updateSelectedItem.bind(this);
-        this.toggleInfo = this.toggleInfo.bind(this);
+        this.updateSize = this.updateSize.bind(this);
         
         this.refreshQueue = this.refreshQueue.bind(this);
-        setInterval(this.refreshQueue,1000);
     }
 
     
     componentWillMount(){
 
         this.pullAvailableColors();
-
+        setInterval(this.refreshQueue,1000);
        
     }
 
@@ -77,7 +77,7 @@ class PrintingPage extends Component{
             }
         }
 
-        return false;
+        return true;
 
     }
     //In update so that while they're filling out form, this will auto update.
@@ -113,33 +113,6 @@ class PrintingPage extends Component{
         return body;
     }
 
-    toggleInfo(event){
-
-        const nameOfFile = event.target.name.split("_")[0];
-
-        const toDisplay = this.state.queue.find((element) => {
-            console.log(element.name);
-            console.log(nameOfFile);
-            return element.name === nameOfFile;
-        });
-
-        //If was info was clicked and was on same item as before, then this means close the info box
-        if (this.state.infoContent != null && this.state.infoContent.name == nameOfFile){
-            
-            this.setState({
-                infoOpen: false,
-                infoContent:null
-
-            });
-        }
-        else{
-
-            this.setState({
-                infoOpen : true,
-                infoContent:this.state.queue.find((modelInfo) => { if (modelInfo.name == nameOfFile) return true;})
-            });
-        }
-    }
 
     pullAvailableColors(){
             fire.database().ref("PrinterState/Color").once('value')
@@ -189,6 +162,7 @@ class PrintingPage extends Component{
             })
         }
 
+        return this.state.error == "";
     }
 
     uploadSecurely = async() => {
@@ -196,14 +170,15 @@ class PrintingPage extends Component{
         const data = new FormData();
 
         data.append('file', this.state.fileUploaded);
-        data.append('size',{size:this.state.modelSize, unit:this.state.modelSizeUnit});
+        data.append('size',this.state.modelSize + this.state.modelSizeUnit);
+        console.log(this.state.modelSize);
         //Will check dropdown to get its valjue, but still now just this.
         data.append('color', this.state.colorChosen);
 
         //Could check localstorage but if ever do this not on web like just phone app then will require this way.
         //Only need email, don't need rest of information.
-        data.append('user',JSON.this.props.userInfo.email);
-        const response = await fetch(url+"/uploadFile", {
+        data.append('uid',this.props.userInfo.uid);
+        const response = await fetch(url+"/AddToQueue", {
 
 
             method:"POST",
@@ -269,10 +244,19 @@ class PrintingPage extends Component{
         })
     }
 
+    updateSize(event){
+
+        this.setState({
+            modelSize: event.target.value
+        });
+
+    }
+
   
 
     render(){
             
+        console.log(this.state.queue);
         return (
            
             <div>
@@ -288,9 +272,9 @@ class PrintingPage extends Component{
                             this.state.queue.map((order) => {
 
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem> {order.name} 
+                            return <ListGroupItem> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
+                            start = {order.start} end = {order.end}/>
 
-                            <Button name={order.name+"_info"} id={order.name+"_info"} onClick = {this.toggleInfo}> Info </Button>
                         </ListGroupItem>
 
                        })
@@ -299,15 +283,7 @@ class PrintingPage extends Component{
                 {/*Will change this and userprofile to be modular and switch the null part, will create custom popoveritem*
                     Right now multiple buttons mapped to one popover(cause only one need be open, but maybe not best way, can
                     force only one open another way. Yeah cleaner and the positions gets fucked.*/}
-                <Popover placement="bottom" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
-                        <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
-                        <PopoverBody>
-                            <p>Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} </p>
-                            <p>Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} </p>
-                            <p>Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} </p>
-                           <p> Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} </p>
-                        </PopoverBody>
-                </Popover>
+               
                {/*Impossible for user to be null on this page cause will redirect them to login if go to this path*/}
                 <p> Your Credits: { this.props.userInfo.credits} </p>
                 
@@ -327,7 +303,7 @@ class PrintingPage extends Component{
                     
                     <FormGroup className="CustomSize" hidden = {this.state.defaultSizeSelection}>
 
-                    <Input name="size" onChange={(input)=>{this.setState({size:input.value});}} className = "SizeSelection" placeholder="Input size"></Input> 
+                    <Input name="size" onChange={this.updateSize} value={this.state.modelSize} className = "SizeSelection" placeholder="Input size"></Input> 
 
                         {/*Test this later before doing toher way*/}
                         <Dropdown className = "SizeUnit" isOpen = {this.state.modelDropDown} toggle={this.toggleSizeDD}>
