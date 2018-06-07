@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Form, Input,Label} from 'reactstrap';
+import fire from './back-end/fire'
 
 const url = "http://localhost:5000";
 
@@ -12,16 +13,50 @@ class Reset extends Component{
             passwordEntered:"",
             retypedPassword:"",
             error:"",
-            success:false
+            success:false,
+            expired:true,
+
         };
 
         this.resetPassword = this.resetPassword.bind(this);
         this.onUpdateField = this.onUpdateField.bind(this);
     }
 
+ 
 
-   //Route will check if token exists then redirect accordingly.
-   //Or just render something different here instead?
+   
+    componentWillMount(){
+
+        const token = this.props.match.params.acc;
+        //Can't do it in here.
+        const ref = fire.database().ref("ExpiredTokens/"+token).once('value')
+        .then(snapshot => {
+
+          //Works but slight delay
+          if (snapshot.exists()){
+            
+            console.log("here?");
+            this.props.history.push("/");
+            return;
+          }
+          else{
+                this.setState({
+                    expired:false
+                });
+                //Once mounted, it will set the token expired.
+                const formData = new FormData();
+                formData.append("token",token);
+                fetch(url+"/TokenUsed",{
+                    method:"POST",
+                    body:formData
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+          }
+        })
+      
+    }
 
 
     resetPassword(event){
@@ -64,12 +99,10 @@ class Reset extends Component{
     }
 
     render(){
-        return (<div>
-                
-
+        return (<div hidden = {this.state.expired}>
             
-            <p> Your password has been updated. </p>
-            <Form onSubmit = {this.resetPassword}>
+            <p hidden ={!this.state.success}> Your password has been updated. </p>
+            <Form onSubmit = {this.resetPassword} hidden = {this.state.success}>
                 <Label for = "pw1"> Enter your new password </Label>
                 <Input id ="pw1" name="passwordEntered" type="password" value={this.state.passwordEntered} onChange={this.onUpdateField}/>
                 <Label for = "pw2"> Re-Enter your new password </Label>

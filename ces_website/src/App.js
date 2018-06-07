@@ -172,8 +172,14 @@ class App extends Component {
 
        {/* <Route path = "/Feedback" component = {Feedback}/>*/}
         <Route path = "/Reset/:acc" render = {(props)=>{
-          //Will create component for resetting password in users branch first.
+          const token = props.match.params.acc;
+
+          
           return <Reset {...props}/>
+         
+          
+          //Actually I could make TokensExpired public, cause they don't really matter.
+          //Nothing someone can do with an expired token, could infer that changed password, but won't know who.
         }}/>
         </div>
         </Router>
