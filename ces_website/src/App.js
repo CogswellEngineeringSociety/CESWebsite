@@ -9,6 +9,7 @@ import {Button} from 'reactstrap';
 import UserProfile from './UserProfile'
 import RegistrationSuccess from './RegistrationSuccess';
 import ForgotPasswordPage from './ForgotPassword';
+import Reset from './Reset'
 
 import {
   BrowserRouter as Router,
@@ -169,8 +170,11 @@ class App extends Component {
             return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
         }}/>
 
-        
-
+       {/* <Route path = "/Feedback" component = {Feedback}/>*/}
+        <Route path = "/Reset/:acc" render = {(props)=>{
+          //Will create component for resetting password in users branch first.
+          return <Reset {...props}/>
+        }}/>
         </div>
         </Router>
 
