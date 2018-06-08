@@ -22,17 +22,13 @@ class ChangePasswordPage extends Component{
             passwordEntered:"",
             retypedPassword:"",
             error:"",
-            changeState: null
+            changeState: loadingStates.NOTLOADING
         }
         this.onUpdateField = this.onUpdateField.bind(this);
         this.changePassword = this.changePassword.bind(this);
     }
 
-    componentWillMount(){
-        this.setState({
-            changeState : loadingStates.NOTLOADING
-        });
-    }
+ 
 
     componentWillUpdate(){
     }

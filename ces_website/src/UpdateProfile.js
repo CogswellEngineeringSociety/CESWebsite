@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import fire from './back-end/fire';
+import LoadingScreen, {loadingStates} from './LoadingScreen';
+
 
 class UpdateProfilePage extends Component{
 
@@ -17,6 +19,7 @@ class UpdateProfilePage extends Component{
             major:this.props.userInfo.major,
             year:this.props.userInfo.year,
             error:"",
+            updateState: loadingStates.NOTLOADING,
             majorListOpen:false,
             yearListOpen:false
         } 
@@ -30,6 +33,7 @@ class UpdateProfilePage extends Component{
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
     }
 
+   
 
     fieldChanged(event){
         const target = event.target;
@@ -56,18 +60,24 @@ class UpdateProfilePage extends Component{
 
         const dbRef = fire.database().ref("Users/"+this.props.userInfo.uid);
 
+        this.setState({
+            updateState : loadingStates.LOADING
+        });
         dbRef.update({
             major : this.state.major,
             year : this.state.year
         })
         .then(val => {
 
-
-            //Will add loading status here like did with ChangePassword after make it modular.
-
+            this.setState({
+                updateState : loadingStates.LOADED
+            });
         })
         .catch(err => {
 
+            this.setState({
+                updateState : loadingStates.NOTLOADING
+            });
         });
       
     }
@@ -142,11 +152,10 @@ class UpdateProfilePage extends Component{
                                 return <DropdownItem name="year" onClick={this.dropDownItemSelected}> {year} </DropdownItem>
                             })}
                         </DropdownMenu>
-
-
                     </Dropdown>
                 </FormGroup>
             </Form>
+            <LoadingScreen loadState={this.state.updateState} loadingText = "Updating Profile" loadedText = "Updated Profile"/>
             </div>)
 
 

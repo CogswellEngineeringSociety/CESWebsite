@@ -114,6 +114,9 @@ export default class UserProfile extends Component{
             <div>
                 <div className = "profileHeader">
                                 <p> Your Credits: { this.props.userInfo.credits} </p>
+                                <p> Major: {this.props.userInfo.major} </p>
+                                <p> Year : {this.props.userInfo.year} </p>
+                                <p> Concentration : {this.props.userInfo.concentration == ""? "Not specified" : this.props.userInfo.concentration} </p>
                                 <Link to="/ChangePassword"> Change Password </Link>
                                 {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
                                 just gotta be logged in*/}
