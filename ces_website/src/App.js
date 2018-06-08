@@ -180,6 +180,15 @@ class App extends Component {
         
       }}/>
 
+        <Route path="/UpdateProfile" render = {(props) => {
+
+            if (this.state.user != null)
+              return <UserProfile userInfo={this.state.user}/>
+            else
+              return <Redirect to ={{pathname:"/Login", state:{prompt:"Update your profile",back:"/UpdateProfile"}}} {...props}/>
+
+        }}/>
+
        {/* <Route path = "/Feedback" component = {Feedback}/>*/}
         <Route path = "/Reset/:acc" render = {(props)=>{
           const token = props.match.params.acc;

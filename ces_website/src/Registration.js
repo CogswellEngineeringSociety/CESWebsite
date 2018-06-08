@@ -11,7 +11,6 @@ const validator = require('./util/validationFunctions');
 
     constructor(props){
         super(props);
-        this.onRegister = this.onRegister.bind(this);
         this.state={
 
             email:"",
@@ -25,6 +24,8 @@ const validator = require('./util/validationFunctions');
             yearListOpen:false
         } 
 
+        this.onRegister = this.onRegister.bind(this);
+        
         this.fieldChanged = this.fieldChanged.bind(this);
 
         this.dropDownItemSelected = this.dropDownItemSelected.bind(this);
@@ -216,12 +217,13 @@ const validator = require('./util/validationFunctions');
     }
 
    
+    //This could be own thing too in util, tbh. for now copy fucking pasta lol
+    //Just need to use call back with setState and all good. Still some duplicate, but less.
     fieldChanged(event){
         const target = event.target;
         this.setState({
             [target.name] : target.value,
         });
-
     }
 
     dropDownItemSelected(event){
@@ -296,7 +298,8 @@ const validator = require('./util/validationFunctions');
                    
                 
                 </Dropdown>
-                
+                </FormGroup>
+                <FormGroup>
                 <Dropdown style={{paddingBottom:"3em"}} direction="right" isOpen={this.state.yearListOpen} toggle = {this.toggleYearList}>
                 <DropdownToggle caret>
                         { (this.state.year !== "")? this.state.year : "Select Year"}

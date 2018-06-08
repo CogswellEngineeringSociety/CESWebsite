@@ -105,6 +105,8 @@ export default class UserProfile extends Component{
         });
     }
 
+    
+
     render(){
 
         return (
@@ -112,10 +114,10 @@ export default class UserProfile extends Component{
             <div>
                 <div className = "profileHeader">
                                 <p> Your Credits: { this.props.userInfo.credits} </p>
-                                <Link to="ChangePassword"> Change Password </Link>
+                                <Link to="/ChangePassword"> Change Password </Link>
                                 {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
                                 just gotta be logged in*/}
-                                <Link to="UpdateProfile"> Update Profile </Link>
+                                <Link to="/UpdateProfile"> Update Profile </Link>
                 
                 </div>
 

@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Form, Input, Label,FormText,Alert} from 'reactstrap';
 import fire, {url} from './back-end/fire';
+import LoadingScreen, {loadingStates} from './LoadingScreen';
+
 const validator = require('./util/validationFunctions');
 
 
@@ -28,7 +30,7 @@ class ChangePasswordPage extends Component{
 
     componentWillMount(){
         this.setState({
-            changeState : this.changeStates.NOTCHANGING
+            changeState : loadingStates.NOTLOADING
         });
     }
 
@@ -73,20 +75,21 @@ class ChangePasswordPage extends Component{
 
                 //Since only updating own account settings, it will be on this side because rules will only allow if authorized.
                 this.setState({
-                    changeState:this.changeStates.CHANGING
+                    changeState:loadingStates.LOADING
                 });
                 user.updatePassword(this.state.passwordEntered)
                     .then(val => {
 
                         this.setState({
-                           changeState : this.changeStates.CHANGED
+                           changeState : loadingStates.LOADED
                         });
                     }) 
-                    .error(err => {
+                    .catch(err => {
 
+                        console.log(err);
                         this.setState({
                             error:"Password failed to change",
-                            changeState:this.changeStates.NOTCHANGING
+                            changeState:loadingStates.NOTLOADING
                         });
                     })
             })
@@ -104,7 +107,7 @@ class ChangePasswordPage extends Component{
     render(){
 
         return (<div>
-                <Form hidden = {this.state.changeState == this.changeStates.CHANGED} onSubmit = {this.changePassword}>
+                <Form hidden = {this.state.changeState == loadingStates.LOADED} onSubmit = {this.changePassword}>
                     <Label for = "currentPW"> Enter your current password </Label>
                     <Input id ="currentPW" name="currentPW" type="password" value={this.state.currentPW} onChange={this.onUpdateField}/>
                     <Label for = "pw1"> Enter your new password </Label>
@@ -116,13 +119,8 @@ class ChangePasswordPage extends Component{
                     <Input type="submit" value="Confirm"/>
 
                 </Form>
-                <div hidden={this.state.changeState != this.changeStates.CHANGING}>
-                    {/*Later will be loading animation*/}
-                    <Alert color ="info" > Changing Password </Alert>
-                </div>
-                <div hidden = {this.state.changeState != this.changeStates.CHANGED}>
-                    <Alert color = "info" > Successfuly Changed Password</Alert>
-                </div>
+                
+                <LoadingScreen loadState={this.state.changeState} loadingText = "Changing Password" loadedText = "Changed Password"/>
             
             
             </div>)
