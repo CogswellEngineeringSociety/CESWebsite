@@ -14,7 +14,7 @@ function validatePW(pw){
     }
 
     if (valid){
-        valid = pw.length > 6;
+        valid = pw.length >= 6;
     }
      
      return valid;

@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
-import {Form, Input,Label} from 'reactstrap';
+import {Form, Input,Label, FormText,Alert} from 'reactstrap';
 import fire from './back-end/fire'
+const validator = require('./util/validationFunctions');
+
 
 const url = "http://localhost:5000";
 
@@ -61,6 +63,14 @@ class Reset extends Component{
 
     resetPassword(event){
         event.preventDefault();
+        if (!validator.testPW(this.state.passwordEntered)){
+            
+            this.setState({
+                error:"Invalid Password"
+            });
+            return;
+
+        }
 
         if(this.state.passwordEntered !== this.state.retypedPassword){
             this.setState({
@@ -104,10 +114,11 @@ class Reset extends Component{
             <p hidden ={!this.state.success}> Your password has been updated. </p>
             <Form onSubmit = {this.resetPassword} hidden = {this.state.success}>
                 <Label for = "pw1"> Enter your new password </Label>
+                <FormText className="FormPrompt"> (Password must at a minimum of 6 characters and contain atleast one of each: Lowercase,Uppercase,Number) </FormText>
                 <Input id ="pw1" name="passwordEntered" type="password" value={this.state.passwordEntered} onChange={this.onUpdateField}/>
                 <Label for = "pw2"> Re-Enter your new password </Label>
                 <Input id ="pw2" name="retypedPassword" type="password" value={this.state.retypedPassword} onChange={this.onUpdateField}/>
-                <p> {this.state.error} </p>
+                <Alert color="warning" hidden = {this.state.error == ""}> {this.state.error} </Alert>
                 <Input type="submit" value="Confirm"/>
             </Form>
             </div>);

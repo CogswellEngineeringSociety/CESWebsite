@@ -31,6 +31,8 @@ export default class UserProfile extends Component{
 
         databaseRef.on('value',snapshot =>{
            
+            if (!snapshot.exists()) return;
+
             const orders = snapshot.val();
             console.log(orders);
             Object.keys(orders).forEach((key) => {
@@ -43,10 +45,6 @@ export default class UserProfile extends Component{
             })
             
         });
-
-
-      
-        
 
     }
 
@@ -153,9 +151,9 @@ export default class UserProfile extends Component{
                             this.state.orderedPrints.map((order) => {
 
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem> {order.name} 
+                            return <ListGroupItem> 
 
-                            <Button name={order.name+"_info"} id={order.name+"_info"} onClick = {this.toggleInfo}> Info </Button>
+                            {/*Will be done same way as 3DPrinter, just will also have cancel button.*/}
                             <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
                         </ListGroupItem>
 
@@ -163,17 +161,6 @@ export default class UserProfile extends Component{
                     }
                 </ListGroup>
                
-                    {/*Name in info content will correspond to last info button clicked so that the popover shows up in the
-                    correct spot*/}
-                <Popover placement="down" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
-                        <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
-                        <PopoverBody>
-                            <p>Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} </p>
-                            <p>Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} </p>
-                            <p>Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} </p>
-                           <p> Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} </p>
-                        </PopoverBody>
-                </Popover>
             </div>
 
         )

@@ -19,16 +19,20 @@ const validator = require('./util/validationFunctions');
             firstName:"",
             lastName:"",
             major:"",
+            year:"",
             error:"",
-            majorListOpen:false
+            majorListOpen:false,
+            yearListOpen:false
         } 
 
         this.fieldChanged = this.fieldChanged.bind(this);
 
-        this.majorSelected = this.majorSelected.bind(this);
+        this.dropDownItemSelected = this.dropDownItemSelected.bind(this);
         this.toggleMajorList = this.toggleMajorList.bind(this);
+        this.toggleYearList = this.toggleYearList.bind(this);
 
 
+        this.years = ["Freshman","Sophomore","Junior","Senior","Alumni"];
         //These options will be pulled from either file or database instead later. This is fine for now.
         this.majors=["Game Design Engineering","Computer Science","Digital Audio Engineering","Digital Arts Engineering","Digital Arts Animaton",
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
@@ -89,10 +93,11 @@ const validator = require('./util/validationFunctions');
         data.append("email",this.state.email);
         data.append("password",this.state.password);
         data.append("major",this.state.major);
+        data.append("year",this.state.year);
 
         //Chang with loclahost for testing later, changing app to be different domain so keeping here for now
         //the server app needs to be on too
-        const response = await fetch("http://localhost:5000/register",{
+        const response = await fetch(url+"/register",{
 
             method:"POST",
             body:data,
@@ -166,37 +171,47 @@ const validator = require('./util/validationFunctions');
             const prefix = this.state.email.split("@")[0];
 
             valid = prefix.length > 1 && (prefix !== "@cogswell.edu");
+
         }
 
         if (!valid){
             this.setState({
                 error:"Invalid Email."
             });
-            return false;
         }
+        else {
 
-        valid = validator.testPW(this.state.password);
+            valid = validator.testPW(this.state.password);
 
-        if (!valid){
-            this.setState({
-                error:"Invalid Password"
-            });
-            return false;
+            if (!valid){
+                this.setState({
+                    error:"Invalid Password"
+                });
+            }
+            else{
+                    //Checkign if selected major
+                    valid = this.state.major.length > 0;
+
+                    //Prob better way to do this then checking same condition lol
+                    if (!valid){
+                        this.setState({
+                            error:"Please Select your Major"
+                        });
+                    }
+                    else{
+                        console.log("first");
+                        
+                        valid = this.state.year.length > 0;
+                        if (!valid){
+
+                            console.log("here");
+                            this.setState({
+                                error:"Please select the year you are in"
+                            });
+                        }
+                    }
+            }
         }
-
-
-        //Checkign if selected major
-        valid = this.state.major.length > 0;
-
-        //Prob better way to do this then checking same condition lol
-        if (!valid){
-            this.setState({
-                error:"Please Select your Major"
-            });
-            return false;
-        }
-        //Password should also require stuff, but fuck it for now don't care enough, up to them for that
-
         return valid;
     }
 
@@ -209,17 +224,23 @@ const validator = require('./util/validationFunctions');
 
     }
 
-    majorSelected(event){
+    dropDownItemSelected(event){
         this.setState({
-            "major":event.target.textContent,
+            [event.target.name]:event.target.textContent,
         });
     }
 
-    toggleMajorList(){
+    toggleMajorList(event){
         this.setState({
             majorListOpen : !this.state.majorListOpen
         });
     }
+    toggleYearList(event){
+        this.setState({
+            yearListOpen : !this.state.yearListOpen
+        });
+    }
+
 
     render(){
 
@@ -245,6 +266,7 @@ const validator = require('./util/validationFunctions');
                 <FormGroup>
 
                 <Dropdown style={{paddingBottom:"3em"}}name="major" direction="right" isOpen={this.state.majorListOpen} toggle = {this.toggleMajorList}>
+                   
                     <DropdownToggle caret>
                         { (this.state.major !== "")? this.state.major : "Select Major"}
                     </DropdownToggle>
@@ -267,12 +289,43 @@ const validator = require('./util/validationFunctions');
                     }}>
                         {this.majors.map(major => {
 
-                            return <DropdownItem onClick={this.majorSelected}> {major} </DropdownItem>
+                            return <DropdownItem name="major" onClick={this.dropDownItemSelected}> {major} </DropdownItem>
                         })}
                     </DropdownMenu>
+
+                   
                 
                 </Dropdown>
-    
+                
+                <Dropdown style={{paddingBottom:"3em"}} direction="right" isOpen={this.state.yearListOpen} toggle = {this.toggleYearList}>
+                <DropdownToggle caret>
+                        { (this.state.year !== "")? this.state.year : "Select Year"}
+                    </DropdownToggle>
+                    <DropdownMenu  modifiers={{
+                        
+                        setMaxHeight: {
+                            enabled: true,
+                            fn: (data) => {
+                              return {
+                                ...data,
+                                styles: {
+                                  ...data.styles,
+                                  overflow: 'auto',
+                                  maxHeight: 100,
+                                },
+                              };
+                            },
+                          },
+                        
+                    }}>
+                        {this.years.map(year => {
+
+                            return <DropdownItem name="year" onClick={this.dropDownItemSelected}> {year} </DropdownItem>
+                        })}
+                    </DropdownMenu>
+
+
+                </Dropdown>
                 </FormGroup>
     
                
