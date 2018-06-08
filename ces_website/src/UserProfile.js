@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import fire,{url} from './back-end/fire';
 import {ListGroup, ListGroupItem, ListGroupItemHeading, Button, Popover,PopoverBody,PopoverHeader} from 'reactstrap';
-
+import {Link} from 'react-router-dom';
 
 export default class UserProfile extends Component{
 
@@ -11,13 +11,9 @@ export default class UserProfile extends Component{
         this.state = {
 
             orderedPrints: [],
-            infoOpen:false,
-            //For actual content
-            infoContent:null,
             error:""
         }
 
-        this.toggleInfo = this.toggleInfo.bind(this);
         this.refund = this.refund.bind(this);
     }
 
@@ -48,31 +44,7 @@ export default class UserProfile extends Component{
 
     }
 
-    toggleInfo(event){
-
-        const nameOfFile = event.target.name.split("_")[0];
-
-        const toDisplay = this.state.orderedPrints.find((element) => {
-            return element.fileName === nameOfFile;
-        });
-
-        //If was info was clicked and was on same item as before, then this means close the info box
-        if (this.state.infoContent != null && this.state.infoContent.name == nameOfFile){
-            
-            this.setState({
-                infoOpen: false,
-                infoContent:null
-
-            });
-        }
-        else{
-
-            this.setState({
-                infoOpen : true,
-                infoContent:this.state.orderedPrints.find((modelInfo) => { if (modelInfo.name == nameOfFile) return true;})
-            });
-        }
-    }
+   
 
     refund(event){
         //If the thing they clicked on to refund is still in queue
@@ -138,7 +110,14 @@ export default class UserProfile extends Component{
         return (
             //Will show all user information and models they ordered to print
             <div>
+                <div className = "profileHeader">
                                 <p> Your Credits: { this.props.userInfo.credits} </p>
+                                <Link to="ChangePassword"> Change Password </Link>
+                                {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
+                                just gotta be logged in*/}
+                                <Link to="UpdateProfile"> Update Profile </Link>
+                
+                </div>
 
                 <ListGroup>
                     <ListGroupItemHeading>
@@ -161,6 +140,7 @@ export default class UserProfile extends Component{
                     }
                 </ListGroup>
                
+                    
             </div>
 
         )

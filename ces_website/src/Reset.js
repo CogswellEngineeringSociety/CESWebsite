@@ -37,7 +37,6 @@ class Reset extends Component{
           //Works but slight delay
           if (snapshot.exists()){
             
-            console.log("here?");
             this.props.history.push("/");
             return;
           }
@@ -104,8 +103,6 @@ class Reset extends Component{
         this.setState({
             [target.name] : target.value
         });
-
-
     }
 
     render(){

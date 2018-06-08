@@ -9,6 +9,7 @@ import {Button} from 'reactstrap';
 import UserProfile from './UserProfile'
 import RegistrationSuccess from './RegistrationSuccess';
 import ForgotPasswordPage from './ForgotPassword';
+import ChangePassword from './ChangePassword';
 import Reset from './Reset'
 
 import {
@@ -169,6 +170,15 @@ class App extends Component {
           else
             return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
         }}/>
+
+        <Route path="/ChangePassword" render = {(props) => {
+        
+          if (this.state.user != null)
+            return <ChangePassword userInfo = {this.state.user} {...props}/>
+          else
+            return <Redirect to={{pathname:"/Login",state:{prompt:"Update your account",back:"/ChangePassword"}}} {...props} />
+        
+      }}/>
 
        {/* <Route path = "/Feedback" component = {Feedback}/>*/}
         <Route path = "/Reset/:acc" render = {(props)=>{
