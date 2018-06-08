@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
-import fire from './back-end/fire';
+import fire, {url} from './back-end/fire';
 import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css';
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,ListGroup,ListGroupItem,ListGroupItemHeading ,
-Popover,PopoverHeader,PopoverBody} from 'reactstrap';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
+    FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,
+    ListGroup,ListGroupItem,ListGroupItemHeading ,
+    Popover,PopoverHeader,PopoverBody} 
+from 'reactstrap';
 import ModelInfoBlock from './ModelInfoBlock'
 
 //Will be in separate file later upon merging
-const url ="http://localhost:5000";
 class PrintingPage extends Component{
 
     constructor(props){
@@ -52,13 +54,9 @@ class PrintingPage extends Component{
     componentWillMount(){
 
         this.pullAvailableColors();
-        setInterval(this.refreshQueue,1000);
-       
+        setInterval(this.refreshQueue,500);       
     }
 
-    componentWillUpdate(){
-        console.log("Im called?");
-    }
     shouldComponentUpdate(prevProps, prevState){
 
         if (prevState.infoOpen != this.state.infoOpen || prevState.infoContent !== this.state.infoContent ||
@@ -92,11 +90,10 @@ class PrintingPage extends Component{
 
     //Read access on queue will also be public.
     //Writing will not be so that will be handled on private server.
-    //Hmm but non-admin storage doesn't have getFilse method
     updateQueue = async() => {
 
         const url = "http://localhost:5000";
-        //Right now just names, need to find way to get time into to it too maybe?
+        //Technically since making public, could use clientside firebase instead, but this is fine. Some overhead but not heavy.
         const response =  await fetch(url+"/3DPrinterQueue",{
             method:"GET",
             headers:{'content-type': 'application/json'},
@@ -108,7 +105,6 @@ class PrintingPage extends Component{
 
        const body = await response.json()
         .catch(err => { console.log(err);})
-
 
         return body;
     }
@@ -140,6 +136,7 @@ class PrintingPage extends Component{
     validateForm(){
 
         var regex = /.obj|.X3G/;
+        return true;
 
         if (this.state.fileUploaded == null){
 
@@ -167,11 +164,12 @@ class PrintingPage extends Component{
 
     uploadSecurely = async() => {
 
+
+        const url = "http://localhost:5000";        
         const data = new FormData();
 
         data.append('file', this.state.fileUploaded);
         data.append('size',this.state.modelSize + this.state.modelSizeUnit);
-        console.log(this.state.modelSize);
         //Will check dropdown to get its valjue, but still now just this.
         data.append('color', this.state.colorChosen);
 
@@ -179,8 +177,6 @@ class PrintingPage extends Component{
         //Only need email, don't need rest of information.
         data.append('uid',this.props.userInfo.uid);
         const response = await fetch(url+"/AddToQueue", {
-
-
             method:"POST",
             body: data,
         })
@@ -204,7 +200,7 @@ class PrintingPage extends Component{
     }
 
     onDrop(newFiles){
-        console.log(newFiles[0].name);
+        
         this.setState({
             fileUploaded:newFiles[0],
             dropZoneText:newFiles[0].name
@@ -226,10 +222,10 @@ class PrintingPage extends Component{
     }
 
     alternateSizeSelection(){
-        console.log("Default size " + this.state.defaultSizeSelection);
         this.setState({
 
-            defaultSizeSelection : !this.state.defaultSizeSelection
+            defaultSizeSelection : !this.state.defaultSizeSelection,
+            modelSize : ""
         })
     }
 
@@ -240,7 +236,7 @@ class PrintingPage extends Component{
 
         this.setState({
             
-            [target.name] : target.textContent
+            [target.name] : target.textContent,
         })
     }
 
@@ -256,11 +252,10 @@ class PrintingPage extends Component{
 
     render(){
             
-        console.log(this.state.queue);
         return (
            
             <div>
-                <ListGroup>
+                <ListGroup >
 
                     <ListGroupItemHeading>
                         Ordered Prints
@@ -270,7 +265,6 @@ class PrintingPage extends Component{
                          (this.state.queue.length == 0)? <ListGroupItem> None </ListGroupItem> :
 
                             this.state.queue.map((order) => {
-
                             //Buttons will be floated to right of name.
                             return <ListGroupItem> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
                             start = {order.start} end = {order.end}/>
@@ -295,15 +289,16 @@ class PrintingPage extends Component{
                         {/*Add images here later*/ }
                         {this.defaultSizes.map(val => {
 
-                            return <Button name="size" className="DefaultSize" onClick = {this.updateSelectedItem}> {val} </Button>
+                            return <Button name="modelSize" className="DefaultSize" onClick = {this.updateSelectedItem}> {val} </Button>
                         })}
                     </ButtonGroup>
+                    <FormText> Chosen Size: {this.state.modelSize} </FormText>
                     </FormGroup>
                     
                     
                     <FormGroup className="CustomSize" hidden = {this.state.defaultSizeSelection}>
 
-                    <Input name="size" onChange={this.updateSize} value={this.state.modelSize} className = "SizeSelection" placeholder="Input size"></Input> 
+                    <Input type="number" name="size" onChange={this.updateSize} value={this.state.modelSize} className = "SizeSelection" placeholder="Input size"></Input> 
 
                         {/*Test this later before doing toher way*/}
                         <Dropdown className = "SizeUnit" isOpen = {this.state.modelDropDown} toggle={this.toggleSizeDD}>
