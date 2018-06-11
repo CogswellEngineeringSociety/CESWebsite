@@ -66,17 +66,12 @@ class NewsPage extends Component{
             this.setState({
                 newsEntries : data
             });
+            console.log(this.state.newsEntries);
         })
         .catch(err => {console.log(err);})
     }
 
   
-    componentWillMount(){
-      //Get page from query parameter.
-      const pg = queryString.parse(this.props.location.search).pg;
-      
-    }
-
 
     render(){
 
