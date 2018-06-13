@@ -71,6 +71,8 @@ class NewsPage extends Component{
 
     render(){
 
+        //Basically this logic will be used in my carousel.
+
         //Get page from query parameter.
         const pg = queryString.parse(this.props.location.search).pg;
         var totalPages = (this.state.newsEntries.length / this.props.entryPerPage) + 1;

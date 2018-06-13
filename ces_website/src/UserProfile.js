@@ -5,6 +5,7 @@ import {Container,Row,Col, Button,
 import {Link} from 'react-router-dom';
 import ModelInfoBlock from './ModelInfoBlock';
 import queryString from 'query-string';
+import PurchaseWheel from './PurchaseWheel';
 
 export default class UserProfile extends Component{
 
@@ -109,7 +110,7 @@ export default class UserProfile extends Component{
         
         /* Removing from Database*/
         //Removing client side like this will depend on authorization they've provided.
-        const databaseRef = fire.datebase.ref("QueuedModels/"+this.props.userInfo.uid+"/"+toRemove);
+        const databaseRef = fire.database().ref("QueuedModels/"+this.props.userInfo.uid+"/"+toRemove);
         databaseRef.remove()
         .then(res => {
 
@@ -186,27 +187,7 @@ export default class UserProfile extends Component{
                     
                 </div>
 
-                <Container hidden = {!this.state.visitorOwnProfile}>
-                    <h1>
-                        Your ordered prints.
-                    </h1>
-                    <Row>
-                    {
-                         (this.state.orderedPrints.length == 0)? <Col> None </Col> :
-
-                            this.state.orderedPrints.map((order) => {
-                            //Buttons will be floated to right of name.
-                            return <Col>  {order.name}
-
-                            <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
-                            start = {order.start} end = {order.end}/>                     
-                            <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
-                        </Col>
-
-                       })
-                    }
-                    </Row>
-                </Container>
+                <PurchaseWheel items = {this.state.orderedPrints} itemsPerPage={3} refundMethod={this.refund} />
 
                 <div hidden = {this.state.visitorOwnProfile}>
                         {/*In here will be button to message, maybe, etc.*/}

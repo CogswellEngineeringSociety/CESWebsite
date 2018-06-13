@@ -92,7 +92,7 @@ class App extends Component {
 
           }> Logout </Button>
 
-          <Button tag={Link} to={"/UserProfile?user="+this.state.user.uid}>Profile
+          <Button tag={Link} to={(this.state.user != null)?"/UserProfile?user="+this.state.user.uid : "/Login"}>Profile
           </Button>
 
           

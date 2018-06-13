@@ -7,8 +7,10 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
     Container,Col,Row,
     Popover,PopoverHeader,PopoverBody} 
 from 'reactstrap';
-import ModelInfoBlock from './ModelInfoBlock'
 import LoadingScreen, {loadingStates} from './LoadingScreen';
+import PurchaseWheel from './PurchaseWheel';
+import key from './util/keyIterator';
+
 
 //Will be in separate file later upon merging
 class PrintingPage extends Component{
@@ -66,24 +68,19 @@ class PrintingPage extends Component{
         clearInterval(this.interval);
     }
 
-    shouldComponentUpdate(prevProps, prevState){
+    shouldComponentUpdate(newProps, newState){
 
-        if ( prevState.queue.length != this.state.queue.length ){
-            return true;
-        }
-        else{
-            for (var i = 0; i < prevState.queue.length; ++i){
-                //Should do sha
-                const prevStateModel = prevState.queue[i];
-                const currStateModel = this.state.queue[i];
-                //This one I will add the ands to for everything 
-                if (prevStateModel.name != currStateModel.name){
-                    return true;
-                }
+        const keys = Object.keys(newState);
+
+        for (var i = 0;  i < keys.length; ++i){
+
+            if (key(newState,i) != key(this.state,i)){
+                return true;
             }
+
         }
 
-        return true;
+        return false;
 
     }
     //In update so that while they're filling out form, this will auto update.
@@ -270,28 +267,14 @@ class PrintingPage extends Component{
         return (
            
             <div>
-                <Container className = "Queue">
-
-                    <h1>
+                 <h1>
                         Ordered Prints
 
-                    </h1>
-                    <Row>
-                    {
-                         (this.state.queue.length == 0)? <Col> None </Col> :
+                </h1>
 
-                            this.state.queue.map((order) => {
-                            //Buttons will be floated to right of name.
-                            //This needs to be separated by pages, not same way news is, cause don't want to refresh everytime
-                            return <Col className = "QueueItem"> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
-                            start = {order.start} end = {order.end}/>
-
-                        </Col>
-
-                       })
-                    }
-                    </Row>
-                </Container>
+                <PurchaseWheel items = {this.state.queue} itemsPerPage = {4}/>
+                
+              
                 {/*Will change this and userprofile to be modular and switch the null part, will create custom popoveritem*
                     Right now multiple buttons mapped to one popover(cause only one need be open, but maybe not best way, can
                     force only one open another way. Yeah cleaner and the positions gets fucked.*/}
