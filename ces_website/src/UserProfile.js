@@ -5,12 +5,14 @@ import {Link} from 'react-router-dom';
 
 export default class UserProfile extends Component{
 
+
     constructor(props){
 
         super(props);
         this.state = {
 
             orderedPrints: [],
+            visitorOwnProfile : false,
             error:""
         }
 
@@ -19,10 +21,22 @@ export default class UserProfile extends Component{
 
     componentWillMount(){
     
+        //Prob add username to this for this comparison or make it use UID instead.
+        if (this.props.location.search.user == this.props.userInfo.uid){
+            this.setState({
+                visitorOwnProfile : true
+            });
 
+            this.pullPrints();
+        }
+    }
+
+    pullPrints(){
+        
+        //This will only show if query was also same.
         const databaseRef = fire.database().ref("QueuedModels/"+this.props.userInfo.uid);
-        console.log(databaseRef);
-          //Need to test this when have internet
+
+        //Need to test this when have internet
         const pulledPrints = []
 
         databaseRef.on('value',snapshot =>{
@@ -30,7 +44,7 @@ export default class UserProfile extends Component{
             if (!snapshot.exists()) return;
 
             const orders = snapshot.val();
-            console.log(orders);
+
             Object.keys(orders).forEach((key) => {
                var newObj = orders[key];
                newObj['name'] = key;
@@ -113,27 +127,33 @@ export default class UserProfile extends Component{
             //Will show all user information and models they ordered to print
             <div>
                 <div className = "profileHeader">
-                                <p> Your Credits: { this.props.userInfo.credits} </p>
                                 <p> Major: {this.props.userInfo.major} </p>
                                 <p> Year : {this.props.userInfo.year} </p>
                                 <p> Concentration : {this.props.userInfo.concentration == ""? "Not specified" : this.props.userInfo.concentration} </p>
-                                <Link to="/ChangePassword"> Change Password </Link>
-                                {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
-                                just gotta be logged in*/}
-                                <Link to="/UpdateProfile"> Update Profile </Link>
-                
+                                <div id="socialMedia">
+                                {/*Will switch to image later*/}
+                                <a href = {this.props.userInfo.socialMedia.linkedIn}> LinkedIn </a>
+                                <a href = {this.props.userInfo.socialMedia.gitHub}> Github </a>
+                                </div>
+
+                                <div className="editProfile" hidden = {!this.state.visitorOwnProfile}>
+                                    <p> Your Credits: { this.props.userInfo.credits} </p>                                                                
+                                    <Link to="/ChangePassword"> Change Password </Link>
+                                    {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
+                                    just gotta be logged in*/}
+                                    <Link to="/UpdateProfile"> Update Profile </Link>
+                                </div>
+                    
                 </div>
 
-                <ListGroup>
+                <ListGroup hidden = {!this.state.visitorOwnProfile}>
                     <ListGroupItemHeading>
                         Your ordered prints.
-
                     </ListGroupItemHeading>
                     {
                          (this.state.orderedPrints.length == 0)? <ListGroupItem> None </ListGroupItem> :
 
                             this.state.orderedPrints.map((order) => {
-
                             //Buttons will be floated to right of name.
                             return <ListGroupItem> 
 
@@ -144,6 +164,10 @@ export default class UserProfile extends Component{
                        })
                     }
                 </ListGroup>
+
+                <div hidden = {this.state.visitorOwnProfile}>
+
+                </div>
                
                     
             </div>

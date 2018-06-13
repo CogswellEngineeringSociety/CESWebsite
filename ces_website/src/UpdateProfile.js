@@ -21,7 +21,9 @@ class UpdateProfilePage extends Component{
             error:"",
             updateState: loadingStates.NOTLOADING,
             majorListOpen:false,
-            yearListOpen:false
+            yearListOpen:false,
+            githubUrl:"",
+            linkedinUrl:""
         } 
 
         this.fieldChanged = this.fieldChanged.bind(this);
@@ -65,7 +67,9 @@ class UpdateProfilePage extends Component{
         });
         dbRef.update({
             major : this.state.major,
-            year : this.state.year
+            year : this.state.year,
+            github : this.state.githubUrl,
+            linkedin: this.state.linkedinUrl
         })
         .then(val => {
 
@@ -119,9 +123,6 @@ class UpdateProfilePage extends Component{
                                 return <DropdownItem name="major" onClick={this.dropDownItemSelected}> {major} </DropdownItem>
                             })}
                         </DropdownMenu>
-
-                        
-                    
                     </Dropdown>
                 </FormGroup>
                
@@ -153,6 +154,13 @@ class UpdateProfilePage extends Component{
                             })}
                         </DropdownMenu>
                     </Dropdown>
+                </FormGroup>
+
+                <FormGroup>
+                <Label for="githubUrl">Github </Label>
+                <Input type="text" name="githubUrl" id="githubUrl" value={this.state.githubUrl} onChange = {this.fieldChanged}/> 
+                <Label for="linkedinUrl">Github </Label>
+                <Input type="text" name="linkedinUrl" id="linkedinUrl" value={this.state.linkedinUrl} onChange = {this.fieldChanged}/>
                 </FormGroup>
             </Form>
             <LoadingScreen loadState={this.state.updateState} loadingText = "Updating Profile" loadedText = "Updated Profile"/>
