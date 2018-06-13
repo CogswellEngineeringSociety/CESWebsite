@@ -103,8 +103,13 @@ class App extends Component {
 
             window.location.reload();
           }
+
           
-          return <NewsPage/>}}/>
+          if (props.location.search.length == 0){
+            props.location.search = "?pg=1";
+          }
+          
+          return <NewsPage userInfo = {this.state.user} entryPerPage={2} {...props}/>}}/>
 
           {/*Thing is fine for these, but if go to calendar should also now be logged in, but can't jsut reload all the time.*/}
         <Route path="/Login"  render={(props) => {
