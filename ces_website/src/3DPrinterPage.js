@@ -4,10 +4,11 @@ import Dropzone from 'react-dropzone';
 import './3DPrinterPage.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
     FormText,Input, ButtonGroup,Button,Form,FormGroup,Alert,
-    ListGroup,ListGroupItem,ListGroupItemHeading ,
+    Container,Col,Row,
     Popover,PopoverHeader,PopoverBody} 
 from 'reactstrap';
 import ModelInfoBlock from './ModelInfoBlock'
+import LoadingScreen, {loadingStates} from './LoadingScreen';
 
 //Will be in separate file later upon merging
 class PrintingPage extends Component{
@@ -34,6 +35,7 @@ class PrintingPage extends Component{
             defaultSizeSelection:true,
             error:"",
             success:"",
+            uploadingState:loadingStates.NOTLOADING
             
         }
         this.sizeUnits = ["mm","inches"];
@@ -88,7 +90,7 @@ class PrintingPage extends Component{
     //It's actually every toher frame, not just when needs to update, fuck.
     refreshQueue(){
         this.updateQueue()
-        .then(body =>  { this.setState({queue:body.queue})})
+        .then(body =>  { this.setState({queue:body.queue.reverse()})})
         .catch(err => {console.log("Still " + err)})
     }
     
@@ -130,10 +132,22 @@ class PrintingPage extends Component{
        
         if (this.validateForm()){
             this.uploadSecurely()
+            
+                    .then( res => {
+                        console.log(res);
+                        this.setState({
+                        dropZoneText:"Drag your Model Here or Click to Upload",
 
-                    .then( res => {this.setState({
-                        dropZoneText:"Drag your Model Here or Click to Upload"
-                    })});
+                            uploadingState:loadingStates.LOADED            
+                    })})
+                    .catch( err => {
+
+                        console.log(err);
+                        this.setState({
+                            error:"An error has occured. Please try again.",
+                            uploadingState: loadingStates.NOTLOADING
+                        })
+                    })
             
         }
     }
@@ -182,26 +196,20 @@ class PrintingPage extends Component{
         //Could check localstorage but if ever do this not on web like just phone app then will require this way.
         //Only need email, don't need rest of information.
         data.append('uid',this.props.userInfo.uid);
+        this.setState({
+            uploadingState : loadingStates.LOADING
+        });
+
         const response = await fetch(url+"/AddToQueue", {
             method:"POST",
             body: data,
         })
-        .then(res => {
-            
-            console.log("uploaded the model");
-            this.setState({
 
-                //Kinda redundant cause they'll see the queue on the page be updated.
-                
+        const body = await response.json();
 
-            });
-         })
-        .catch(err =>{
-            console.log(err);
-            this.setState({
-                error:"An error has occured. Please try again."
-            });
-        })
+
+        return body;
+      
         
     }
 
@@ -209,7 +217,8 @@ class PrintingPage extends Component{
         
         this.setState({
             fileUploaded:newFiles[0],
-            dropZoneText:newFiles[0].name
+            dropZoneText:newFiles[0].name,
+            uploadingState : loadingStates.NOTLOADING
         });
     }
 
@@ -261,26 +270,28 @@ class PrintingPage extends Component{
         return (
            
             <div>
-                <ListGroup >
+                <Container className = "Queue">
 
-                    <ListGroupItemHeading>
+                    <h1>
                         Ordered Prints
 
-                    </ListGroupItemHeading>
+                    </h1>
+                    <Row>
                     {
-                         (this.state.queue.length == 0)? <ListGroupItem> None </ListGroupItem> :
+                         (this.state.queue.length == 0)? <Col> None </Col> :
 
                             this.state.queue.map((order) => {
                             //Buttons will be floated to right of name.
                             //This needs to be separated by pages, not same way news is, cause don't want to refresh everytime
-                            return <ListGroupItem> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
+                            return <Col className = "QueueItem"> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
                             start = {order.start} end = {order.end}/>
 
-                        </ListGroupItem>
+                        </Col>
 
                        })
                     }
-                </ListGroup>
+                    </Row>
+                </Container>
                 {/*Will change this and userprofile to be modular and switch the null part, will create custom popoveritem*
                     Right now multiple buttons mapped to one popover(cause only one need be open, but maybe not best way, can
                     force only one open another way. Yeah cleaner and the positions gets fucked.*/}
@@ -348,6 +359,9 @@ class PrintingPage extends Component{
                     <Alert color="danger" isOpen = {this.state.error != ""}> {this.state.error} </Alert>
 
                 </Form>
+
+                {/*Might be too fast to need loading screen*/}
+                <LoadingScreen loadState = {this.state.uploadingState} loadingText="Uploading Model" loadedText="Model Uploaded"/>
             </div>
         )
     }

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import fire,{url} from './back-end/fire';
-import {ListGroup, ListGroupItem, ListGroupItemHeading, Button, Popover,PopoverBody,PopoverHeader} from 'reactstrap';
+import {Container,Row,Col, Button, 
+    Popover,PopoverBody,PopoverHeader} from 'reactstrap';
 import {Link} from 'react-router-dom';
 import ModelInfoBlock from './ModelInfoBlock';
 import queryString from 'query-string';
@@ -26,7 +27,6 @@ export default class UserProfile extends Component{
         }
 
         this.refund = this.refund.bind(this);
-        console.log("hello");
     }
 
     componentWillMount(){
@@ -109,7 +109,7 @@ export default class UserProfile extends Component{
         
         /* Removing from Database*/
         //Removing client side like this will depend on authorization they've provided.
-        const databaseRef = fire.datebase.ref("QueuedModels/"+this.props.userInfo.email+"/"+toRemove);
+        const databaseRef = fire.datebase.ref("QueuedModels/"+this.props.userInfo.uid+"/"+toRemove);
         databaseRef.remove()
         .then(res => {
 
@@ -186,25 +186,27 @@ export default class UserProfile extends Component{
                     
                 </div>
 
-                <ListGroup hidden = {!this.state.visitorOwnProfile}>
-                    <ListGroupItemHeading>
+                <Container hidden = {!this.state.visitorOwnProfile}>
+                    <h1>
                         Your ordered prints.
-                    </ListGroupItemHeading>
+                    </h1>
+                    <Row>
                     {
-                         (this.state.orderedPrints.length == 0)? <ListGroupItem> None </ListGroupItem> :
+                         (this.state.orderedPrints.length == 0)? <Col> None </Col> :
 
                             this.state.orderedPrints.map((order) => {
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem>  {order.name}
+                            return <Col>  {order.name}
 
                             <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
                             start = {order.start} end = {order.end}/>                     
                             <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
-                        </ListGroupItem>
+                        </Col>
 
                        })
                     }
-                </ListGroup>
+                    </Row>
+                </Container>
 
                 <div hidden = {this.state.visitorOwnProfile}>
                         {/*In here will be button to message, maybe, etc.*/}

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Form, Input, Label,FormText,Alert} from 'reactstrap';
 import fire, {url} from './back-end/fire';
+//Loading states prob should be ins creen, but eh.
 import LoadingScreen, {loadingStates} from './LoadingScreen';
 
 const validator = require('./util/validationFunctions');
@@ -16,7 +17,6 @@ class ChangePasswordPage extends Component{
        
 
         //Will make this loading state and screen to it's own component later.
-        this.changeStates = {NOTCHANGING :"Not Changing" ,CHANGING: "Changing",CHANGED : "Changed"};
         this.state = {
             currentPW:"",
             passwordEntered:"",

@@ -10,6 +10,7 @@ class LoadingScreen extends Component{
         super(props);
 
         
+        console.log("Loaded text",this.props.loadedText);
 
     
     }

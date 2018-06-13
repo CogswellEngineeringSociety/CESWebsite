@@ -22,7 +22,7 @@ class ModelInfoBlock extends Component{
     render(){
 
 
-        return (<div>
+        return (<span>
             <Button id = {this.props.name+"_info"} onClick = {this.toggle}> Info </Button>
             <Popover placement ="bottom" target={this.props.name+"_info"} isOpen = {this.state.popoverOpen} toggle = {this.toggle}>
                 <PopoverHeader> Order Information on {this.props.name} </PopoverHeader>
@@ -33,7 +33,7 @@ class ModelInfoBlock extends Component{
                            <p> Cost: {this.props.cost} </p>
                     </PopoverBody>
             </Popover>
-            </div>);
+            </span>);
 
     }
 
