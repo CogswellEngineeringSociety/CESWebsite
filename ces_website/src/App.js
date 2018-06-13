@@ -11,6 +11,7 @@ import RegistrationSuccess from './RegistrationSuccess';
 import ForgotPasswordPage from './ForgotPassword';
 import ChangePassword from './ChangePassword';
 import Reset from './Reset'
+import Feedback from './Feedback';
 
 import {
   BrowserRouter as Router,
@@ -85,13 +86,13 @@ class App extends Component {
         
         <span hidden={this.state.user == null} className="LoggedInOptions">
 
-          <p> Signed in as {(this.state.user != null)? this .state.user.email : ""} </p>
+          <p> Signed in as {(this.state.user != null)? this.state.user.email : ""} </p>
           <Button  onClick={
-            () => {this.changeLogin(null);}
+            () => {this.changeLogin(null); this.props.history.push("/");}
 
           }> Logout </Button>
 
-          <Button tag={Link} to="/UserProfile">Profile
+          <Button tag={Link} to={"/UserProfile?user="+this.state.user.uid}>Profile
           </Button>
 
           
@@ -170,15 +171,18 @@ class App extends Component {
         })}/>
 
         <Route path="/UserProfile" render = {(props)=>{
-          if (this.state.user != null)
-            return <UserProfile userInfo={this.state.user}/>
+          console.log("hello");
+
+          if (this.state.user != null){
+            
+            console.log(this.state.user.uid);
+            return <UserProfile userInfo={this.state.user}  {...props}/>
+          }
           else
             return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
         }}/>
 
-<<<<<<< HEAD
         <Route path = "/Feedback" component = {Feedback}/>
-=======
         <Route path="/ChangePassword" render = {(props) => {
         
           if (this.state.user != null)
@@ -189,7 +193,6 @@ class App extends Component {
       }}/>
 
         <Route path="/UpdateProfile" render = {(props) => {
->>>>>>> users
 
             if (this.state.user != null)
               return <UserProfile userInfo={this.state.user}/>
@@ -198,7 +201,6 @@ class App extends Component {
 
         }}/>
 
-       {/* <Route path = "/Feedback" component = {Feedback}/>*/}
         <Route path = "/Reset/:acc" render = {(props)=>{
           const token = props.match.params.acc;
 

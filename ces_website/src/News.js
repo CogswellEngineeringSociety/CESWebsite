@@ -21,7 +21,11 @@ class NewsPage extends Component{
         }
 
         this.pullNewsEntries = this.pullNewsEntries.bind(this);
-        setInterval(this.pullNewsEntries,1000);
+        this.intervalID = setInterval(this.pullNewsEntries,1000);
+    }
+    
+    componentWillUnmount(){
+        clearInterval(this.intervalID);
     }
     
     shouldComponentUpdate(nextProps,nextState){
@@ -34,17 +38,9 @@ class NewsPage extends Component{
         }
         
         return false;
-
-    }
-
-    componentWillUpdate(){
-        
-        //This should only be called once.
-        console.log("I'm called");
     }
 
     pullNewsEntries(){
-
         //Then fetch from the news all that match the filter / criterion. 
         //For now just all
         const dbRef = fire.database().ref("News/");

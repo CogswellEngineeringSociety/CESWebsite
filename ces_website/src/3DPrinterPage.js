@@ -48,7 +48,7 @@ class PrintingPage extends Component{
         
         this.refreshQueue = this.refreshQueue.bind(this);
 
-
+        this.interval = 0;       
     }
 
     
@@ -57,7 +57,11 @@ class PrintingPage extends Component{
     componentWillMount(){
 
         this.pullAvailableColors();
-        setInterval(this.refreshQueue,500);       
+        this.interval = setInterval(this.refreshQueue,1000);
+        
+    }
+    componentWillUnmount(){
+        clearInterval(this.interval);
     }
 
     shouldComponentUpdate(prevProps, prevState){

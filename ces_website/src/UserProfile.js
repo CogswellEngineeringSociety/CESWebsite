@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import fire,{url} from './back-end/fire';
 import {ListGroup, ListGroupItem, ListGroupItemHeading, Button, Popover,PopoverBody,PopoverHeader} from 'reactstrap';
 import {Link} from 'react-router-dom';
+import ModelInfoBlock from './ModelInfoBlock';
+import queryString from 'query-string';
 
 export default class UserProfile extends Component{
 
@@ -24,12 +26,19 @@ export default class UserProfile extends Component{
         }
 
         this.refund = this.refund.bind(this);
+        console.log("hello");
     }
 
     componentWillMount(){
     
+
+        console.log(this.props.location);
         //Prob add username to this for this comparison or make it use UID instead.
-        if (this.props.location.search.user == this.props.userInfo.uid){
+        const user = queryString.parse(this.props.location.search).user;
+
+        console.log("visiting profile of " + user);
+        console.log("Logged in as " + this.props.userInfo.uid);
+        if (user == this.props.userInfo.uid){
             this.setState({
                 visitorOwnProfile : true
             });
@@ -37,14 +46,14 @@ export default class UserProfile extends Component{
             this.pullPrints();
         }
 
-        this.pullProfileInfo();
+        //this.pullProfileInfo();
     }
 
     //This will get the rest of the information from user of profile that is considered public.
     //In database will change this so there will be Public parent and private parent under users.
-    pullProfileInfo(){
+    pullProfileInfo(user){
 
-        const dbRef = fire.database().ref("Users/"+this.props.location.search.user+"/public");
+        const dbRef = fire.database().ref("Users/"+user+"/public");
 
         dbRef.on('value',snapshot => {
 
@@ -186,9 +195,10 @@ export default class UserProfile extends Component{
 
                             this.state.orderedPrints.map((order) => {
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem> 
+                            return <ListGroupItem>  {order.name}
 
-                            {/*Will be done same way as 3DPrinter, just will also have cancel button.*/}
+                            <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
+                            start = {order.start} end = {order.end}/>                     
                             <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
                         </ListGroupItem>
 
