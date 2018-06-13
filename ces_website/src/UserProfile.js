@@ -11,6 +11,13 @@ export default class UserProfile extends Component{
         super(props);
         this.state = {
 
+            //Public Information
+            major:"",
+            year:"",
+            concentration:"",
+            github:"",
+            linkedin:"",
+
             orderedPrints: [],
             visitorOwnProfile : false,
             error:""
@@ -29,10 +36,34 @@ export default class UserProfile extends Component{
 
             this.pullPrints();
         }
+
+        this.pullProfileInfo();
+    }
+
+    //This will get the rest of the information from user of profile that is considered public.
+    //In database will change this so there will be Public parent and private parent under users.
+    pullProfileInfo(){
+
+        const dbRef = fire.database().ref("Users/"+this.props.location.search.user+"/public");
+
+        dbRef.on('value',snapshot => {
+
+            //Will update this later to redirect to 404.
+            if (!snapshot.exists()) return;
+
+            const publicInfo = snapshot.val();
+            this.setState({
+                major : publicInfo.major,
+                year : publicInfo.year,
+                concentration : publicInfo.concentration,
+                github : publicInfo.github,
+                linkedin : publicInfo.linkedin
+            })
+        })
     }
 
     pullPrints(){
-        
+
         //This will only show if query was also same.
         const databaseRef = fire.database().ref("QueuedModels/"+this.props.userInfo.uid);
 
@@ -127,13 +158,13 @@ export default class UserProfile extends Component{
             //Will show all user information and models they ordered to print
             <div>
                 <div className = "profileHeader">
-                                <p> Major: {this.props.userInfo.major} </p>
-                                <p> Year : {this.props.userInfo.year} </p>
-                                <p> Concentration : {this.props.userInfo.concentration == ""? "Not specified" : this.props.userInfo.concentration} </p>
+                                <p> Major: {this.state.major} </p>
+                                <p> Year : {this.state.year} </p>
+                                <p> Concentration : {this.state.concentration}</p>
                                 <div id="socialMedia">
                                 {/*Will switch to image later*/}
-                                <a href = {this.props.userInfo.socialMedia.linkedIn}> LinkedIn </a>
-                                <a href = {this.props.userInfo.socialMedia.gitHub}> Github </a>
+                                <a href = {this.state.linkedin}> LinkedIn </a>
+                                <a href = {this.state.github}> Github </a>
                                 </div>
 
                                 <div className="editProfile" hidden = {!this.state.visitorOwnProfile}>
@@ -166,7 +197,7 @@ export default class UserProfile extends Component{
                 </ListGroup>
 
                 <div hidden = {this.state.visitorOwnProfile}>
-
+                        {/*In here will be button to message, maybe, etc.*/}
                 </div>
                
                     
