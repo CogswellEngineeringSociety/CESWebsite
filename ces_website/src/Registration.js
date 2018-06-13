@@ -3,12 +3,14 @@ import fire, { url } from './back-end/fire';
 import {Input,FormText,Form,FormGroup,Label,Button,Alert,Dropdown,DropdownItem,DropdownToggle,DropdownMenu} from 'reactstrap';
 import "./Registration.css";
 import {Route} from 'react-router-dom';
+import key from './util/keyIterator';
+const validator = require('./util/validationFunctions');
+
 
  class Registration extends Component{
 
     constructor(props){
         super(props);
-        this.onRegister = this.onRegister.bind(this);
         this.state={
 
             email:"",
@@ -16,19 +18,52 @@ import {Route} from 'react-router-dom';
             firstName:"",
             lastName:"",
             major:"",
+            year:"",
             error:"",
-            majorListOpen:false
+            majorListOpen:false,
+            yearListOpen:false
         } 
 
+        this.onRegister = this.onRegister.bind(this);
+        
         this.fieldChanged = this.fieldChanged.bind(this);
 
-        this.majorSelected = this.majorSelected.bind(this);
+        this.dropDownItemSelected = this.dropDownItemSelected.bind(this);
         this.toggleMajorList = this.toggleMajorList.bind(this);
+        this.toggleYearList = this.toggleYearList.bind(this);
 
 
+        this.years = ["Freshman","Sophomore","Junior","Senior","Alumni"];
         //These options will be pulled from either file or database instead later. This is fine for now.
         this.majors=["Game Design Engineering","Computer Science","Digital Audio Engineering","Digital Arts Engineering","Digital Arts Animaton",
         "Game Design Art", "Game Design Writing", "Digital Media Management"];
+    }
+
+    shouldComponentUpdate(newProps, newState){
+        
+        if (newProps.userInfo != this.props.userInfo){
+            window.location.reload();
+            return true;
+        }
+
+        const keys = Object.keys(newState);
+
+        for (var i = 0;  i < keys.length; ++i){
+            if (key(newState,i) != key(this.state,i)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    componentWillUpdate(){
+
+        if (this.state.error != ""){
+            this.setState({
+                error:""
+            })
+       }
     }
 
     onRegister(event){
@@ -59,10 +94,11 @@ import {Route} from 'react-router-dom';
         data.append("email",this.state.email);
         data.append("password",this.state.password);
         data.append("major",this.state.major);
+        data.append("year",this.state.year);
 
         //Chang with loclahost for testing later, changing app to be different domain so keeping here for now
         //the server app needs to be on too
-        const response = await fetch("http://localhost:5000/register",{
+        const response = await fetch(url+"/register",{
 
             method:"POST",
             body:data,
@@ -136,72 +172,77 @@ import {Route} from 'react-router-dom';
             const prefix = this.state.email.split("@")[0];
 
             valid = prefix.length > 1 && (prefix !== "@cogswell.edu");
+
         }
 
         if (!valid){
             this.setState({
                 error:"Invalid Email."
             });
-            return false;
         }
+        else {
 
-        //Validating password
-        const pwRegex = [
+            valid = validator.testPW(this.state.password);
 
-            /[a-z]/,
-            /[A-Z]/,
-            /[0-9]/
-        ];
-        
-        for (var i = 0; i < pwRegex.length && valid; ++i){
-            valid = pwRegex[i].test(this.state.password);
+            if (!valid){
+                this.setState({
+                    error:"Invalid Password"
+                });
+            }
+            else{
+                    //Checkign if selected major
+                    valid = this.state.major.length > 0;
+
+                    //Prob better way to do this then checking same condition lol
+                    if (!valid){
+                        this.setState({
+                            error:"Please Select your Major"
+                        });
+                    }
+                    else{
+                        console.log("first");
+                        
+                        valid = this.state.year.length > 0;
+                        if (!valid){
+
+                            console.log("here");
+                            this.setState({
+                                error:"Please select the year you are in"
+                            });
+                        }
+                    }
+            }
         }
-
-        if (!valid){
-            this.setState({
-                error:"Invalid Password"
-            });
-            return false
-        }
-
-
-        //Checkign if selected major
-        valid = this.state.major.length > 0;
-
-        //Prob better way to do this then checking same condition lol
-        if (!valid){
-            this.setState({
-                error:"Please Select your Major"
-            });
-            return false;
-        }
-        //Password should also require stuff, but fuck it for now don't care enough, up to them for that
-
         return valid;
     }
 
    
+    //This could be own thing too in util, tbh. for now copy fucking pasta lol
+    //Just need to use call back with setState and all good. Still some duplicate, but less.
     fieldChanged(event){
         const target = event.target;
         this.setState({
             [target.name] : target.value,
-            error:""
         });
-
     }
 
-    majorSelected(event){
+    dropDownItemSelected(event){
         this.setState({
-            "major":event.target.textContent,
-            error:""
+            [event.target.name]:event.target.textContent,
         });
     }
 
-    toggleMajorList(){
+    toggleMajorList(event){
         this.setState({
             majorListOpen : !this.state.majorListOpen
         });
     }
+    toggleYearList(event){
+        this.setState({
+            yearListOpen : !this.state.yearListOpen
+        });
+    }
+
 
     render(){
 
@@ -227,6 +268,7 @@ import {Route} from 'react-router-dom';
                 <FormGroup>
 
                 <Dropdown style={{paddingBottom:"3em"}}name="major" direction="right" isOpen={this.state.majorListOpen} toggle = {this.toggleMajorList}>
+                   
                     <DropdownToggle caret>
                         { (this.state.major !== "")? this.state.major : "Select Major"}
                     </DropdownToggle>
@@ -249,12 +291,44 @@ import {Route} from 'react-router-dom';
                     }}>
                         {this.majors.map(major => {
 
-                            return <DropdownItem onClick={this.majorSelected}> {major} </DropdownItem>
+                            return <DropdownItem name="major" onClick={this.dropDownItemSelected}> {major} </DropdownItem>
                         })}
                     </DropdownMenu>
+
+                   
                 
                 </Dropdown>
-    
+                </FormGroup>
+                <FormGroup>
+                <Dropdown style={{paddingBottom:"3em"}} direction="right" isOpen={this.state.yearListOpen} toggle = {this.toggleYearList}>
+                <DropdownToggle caret>
+                        { (this.state.year !== "")? this.state.year : "Select Year"}
+                    </DropdownToggle>
+                    <DropdownMenu  modifiers={{
+                        
+                        setMaxHeight: {
+                            enabled: true,
+                            fn: (data) => {
+                              return {
+                                ...data,
+                                styles: {
+                                  ...data.styles,
+                                  overflow: 'auto',
+                                  maxHeight: 100,
+                                },
+                              };
+                            },
+                          },
+                        
+                    }}>
+                        {this.years.map(year => {
+
+                            return <DropdownItem name="year" onClick={this.dropDownItemSelected}> {year} </DropdownItem>
+                        })}
+                    </DropdownMenu>
+
+
+                </Dropdown>
                 </FormGroup>
     
                

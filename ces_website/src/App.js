@@ -8,6 +8,9 @@ import NewsPage from './News';
 import {Button} from 'reactstrap';
 import UserProfile from './UserProfile'
 import RegistrationSuccess from './RegistrationSuccess';
+import ForgotPasswordPage from './ForgotPassword';
+import ChangePassword from './ChangePassword';
+import Reset from './Reset'
 
 import {
   BrowserRouter as Router,
@@ -117,6 +120,11 @@ class App extends Component {
         }
         }}/>
 
+         <Route exact path="/ForgotPassword" render={(props)=>{
+                    console.log("hello");
+                  return <div><ForgotPasswordPage/></div>  
+        }}/>
+
         <Route exact path="/Register" render={(props) => {
 
           //CHecking cache cause state is per session, would have to refresh to sync it up.
@@ -163,8 +171,39 @@ class App extends Component {
             return <Redirect to ={{pathname:"/Login", state:{prompt:"View your profile",back:"/UserProfile"}}} {...props}/>
         }}/>
 
+<<<<<<< HEAD
         <Route path = "/Feedback" component = {Feedback}/>
+=======
+        <Route path="/ChangePassword" render = {(props) => {
+        
+          if (this.state.user != null)
+            return <ChangePassword userInfo = {this.state.user} {...props}/>
+          else
+            return <Redirect to={{pathname:"/Login",state:{prompt:"Update your account",back:"/ChangePassword"}}} {...props} />
+        
+      }}/>
 
+        <Route path="/UpdateProfile" render = {(props) => {
+>>>>>>> users
+
+            if (this.state.user != null)
+              return <UserProfile userInfo={this.state.user}/>
+            else
+              return <Redirect to ={{pathname:"/Login", state:{prompt:"Update your profile",back:"/UpdateProfile"}}} {...props}/>
+
+        }}/>
+
+       {/* <Route path = "/Feedback" component = {Feedback}/>*/}
+        <Route path = "/Reset/:acc" render = {(props)=>{
+          const token = props.match.params.acc;
+
+          
+          return <Reset {...props}/>
+         
+          
+          //Actually I could make TokensExpired public, cause they don't really matter.
+          //Nothing someone can do with an expired token, could infer that changed password, but won't know who.
+        }}/>
         </div>
         </Router>
 

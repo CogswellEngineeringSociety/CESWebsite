@@ -1,38 +1,81 @@
 import React, {Component} from 'react';
 import fire,{url} from './back-end/fire';
 import {ListGroup, ListGroupItem, ListGroupItemHeading, Button, Popover,PopoverBody,PopoverHeader} from 'reactstrap';
-
+import {Link} from 'react-router-dom';
 
 export default class UserProfile extends Component{
+
 
     constructor(props){
 
         super(props);
         this.state = {
 
+            //Public Information
+            major:"",
+            year:"",
+            concentration:"",
+            github:"",
+            linkedin:"",
+
             orderedPrints: [],
-            infoOpen:false,
-            //For actual content
-            infoContent:null,
+            visitorOwnProfile : false,
             error:""
         }
 
-        this.toggleInfo = this.toggleInfo.bind(this);
         this.refund = this.refund.bind(this);
     }
 
     componentWillMount(){
     
+        //Prob add username to this for this comparison or make it use UID instead.
+        if (this.props.location.search.user == this.props.userInfo.uid){
+            this.setState({
+                visitorOwnProfile : true
+            });
 
+            this.pullPrints();
+        }
+
+        this.pullProfileInfo();
+    }
+
+    //This will get the rest of the information from user of profile that is considered public.
+    //In database will change this so there will be Public parent and private parent under users.
+    pullProfileInfo(){
+
+        const dbRef = fire.database().ref("Users/"+this.props.location.search.user+"/public");
+
+        dbRef.on('value',snapshot => {
+
+            //Will update this later to redirect to 404.
+            if (!snapshot.exists()) return;
+
+            const publicInfo = snapshot.val();
+            this.setState({
+                major : publicInfo.major,
+                year : publicInfo.year,
+                concentration : publicInfo.concentration,
+                github : publicInfo.github,
+                linkedin : publicInfo.linkedin
+            })
+        })
+    }
+
+    pullPrints(){
+
+        //This will only show if query was also same.
         const databaseRef = fire.database().ref("QueuedModels/"+this.props.userInfo.uid);
-        console.log(databaseRef);
-          //Need to test this when have internet
+
+        //Need to test this when have internet
         const pulledPrints = []
 
         databaseRef.on('value',snapshot =>{
            
+            if (!snapshot.exists()) return;
+
             const orders = snapshot.val();
-            console.log(orders);
+
             Object.keys(orders).forEach((key) => {
                var newObj = orders[key];
                newObj['name'] = key;
@@ -44,37 +87,9 @@ export default class UserProfile extends Component{
             
         });
 
-
-      
-        
-
     }
 
-    toggleInfo(event){
-
-        const nameOfFile = event.target.name.split("_")[0];
-
-        const toDisplay = this.state.orderedPrints.find((element) => {
-            return element.fileName === nameOfFile;
-        });
-
-        //If was info was clicked and was on same item as before, then this means close the info box
-        if (this.state.infoContent != null && this.state.infoContent.name == nameOfFile){
-            
-            this.setState({
-                infoOpen: false,
-                infoContent:null
-
-            });
-        }
-        else{
-
-            this.setState({
-                infoOpen : true,
-                infoContent:this.state.orderedPrints.find((modelInfo) => { if (modelInfo.name == nameOfFile) return true;})
-            });
-        }
-    }
+   
 
     refund(event){
         //If the thing they clicked on to refund is still in queue
@@ -135,45 +150,57 @@ export default class UserProfile extends Component{
         });
     }
 
+    
+
     render(){
 
         return (
             //Will show all user information and models they ordered to print
             <div>
-                                <p> Your Credits: { this.props.userInfo.credits} </p>
+                <div className = "profileHeader">
+                                <p> Major: {this.state.major} </p>
+                                <p> Year : {this.state.year} </p>
+                                <p> Concentration : {this.state.concentration}</p>
+                                <div id="socialMedia">
+                                {/*Will switch to image later*/}
+                                <a href = {this.state.linkedin}> LinkedIn </a>
+                                <a href = {this.state.github}> Github </a>
+                                </div>
 
-                <ListGroup>
+                                <div className="editProfile" hidden = {!this.state.visitorOwnProfile}>
+                                    <p> Your Credits: { this.props.userInfo.credits} </p>                                                                
+                                    <Link to="/ChangePassword"> Change Password </Link>
+                                    {/*Either link to different page or open profile field here? This links back to UserProfile, they can go directly to Update Profile through link
+                                    just gotta be logged in*/}
+                                    <Link to="/UpdateProfile"> Update Profile </Link>
+                                </div>
+                    
+                </div>
+
+                <ListGroup hidden = {!this.state.visitorOwnProfile}>
                     <ListGroupItemHeading>
                         Your ordered prints.
-
                     </ListGroupItemHeading>
                     {
                          (this.state.orderedPrints.length == 0)? <ListGroupItem> None </ListGroupItem> :
 
                             this.state.orderedPrints.map((order) => {
-
                             //Buttons will be floated to right of name.
-                            return <ListGroupItem> {order.name} 
+                            return <ListGroupItem> 
 
-                            <Button name={order.name+"_info"} id={order.name+"_info"} onClick = {this.toggleInfo}> Info </Button>
+                            {/*Will be done same way as 3DPrinter, just will also have cancel button.*/}
                             <Button name={order.name+"_cancel"} onClick = {this.refund}> Cancel  </Button> 
                         </ListGroupItem>
 
                        })
                     }
                 </ListGroup>
+
+                <div hidden = {this.state.visitorOwnProfile}>
+                        {/*In here will be button to message, maybe, etc.*/}
+                </div>
                
-                    {/*Name in info content will correspond to last info button clicked so that the popover shows up in the
-                    correct spot*/}
-                <Popover placement="down" isOpen = {this.state.infoOpen} target={(this.state.infoContent != null)?this.state.infoContent.name+"_info": null}>
-                        <PopoverHeader> Order Information on { (this.state.infoContent != null)? this.state.infoContent.name : ""} </PopoverHeader>
-                        <PopoverBody>
-                            <p>Estimated Start Time: {(this.state.infoContent != null)?this.state.infoContent.start : ""} </p>
-                            <p>Duration: {(this.state.infoContent != null)?this.state.infoContent.duration : ""} </p>
-                            <p>Estimated End Time: {(this.state.infoContent != null)?this.state.infoContent.end : ""} </p>
-                           <p> Cost: {(this.state.infoContent != null)?this.state.infoContent.cost : ""} </p>
-                        </PopoverBody>
-                </Popover>
+                    
             </div>
 
         )
