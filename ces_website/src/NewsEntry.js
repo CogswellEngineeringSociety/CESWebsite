@@ -10,7 +10,6 @@ class NewsEntry extends Component{
         
         //Will think more on state for entries later.
         this.state = {
-            beingEdited:false,
 
         }
     }
@@ -19,7 +18,8 @@ class NewsEntry extends Component{
 
         return (<div>
                 <h1 id="topic"> {this.props.topic}</h1>
-                <h3 tag={Link} id="author" to={"/UserProfile?user="+this.props.author}> Written by {this.props.author} </h3>
+                 <p> Written by
+                <Link  id="author" to={"/UserProfile?user="+this.props.author}>  {this.props.author} </Link></p>
                 <p id="description"> {this.props.desc }</p>
             </div>);
     }
