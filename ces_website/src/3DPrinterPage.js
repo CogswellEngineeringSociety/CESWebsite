@@ -12,12 +12,16 @@ import ModelInfoBlock from './ModelInfoBlock'
 //Will be in separate file later upon merging
 class PrintingPage extends Component{
 
+
+
     constructor(props){
         super(props);
         
+
         this.state = {
              
             //Should I show the list of everything in queue? Is that neccessarry?
+            //I'll turn the page thing into it's own component later.
             queue : [],
             colors : [],
             colorChosen: "Choose Color",
@@ -30,11 +34,6 @@ class PrintingPage extends Component{
             defaultSizeSelection:true,
             error:"",
             success:"",
-
-            //All this stuff taking from my code in UserProfile, will think of way to make it modular later
-            infoOpen:false,
-            //For actual content
-            infoContent:null
             
         }
         this.sizeUnits = ["mm","inches"];
@@ -48,7 +47,11 @@ class PrintingPage extends Component{
         this.updateSize = this.updateSize.bind(this);
         
         this.refreshQueue = this.refreshQueue.bind(this);
+
+
     }
+
+    
 
     
     componentWillMount(){
@@ -59,8 +62,7 @@ class PrintingPage extends Component{
 
     shouldComponentUpdate(prevProps, prevState){
 
-        if (prevState.infoOpen != this.state.infoOpen || prevState.infoContent !== this.state.infoContent ||
-            prevState.queue.length != this.state.queue.length ){
+        if ( prevState.queue.length != this.state.queue.length ){
             return true;
         }
         else{
@@ -266,6 +268,7 @@ class PrintingPage extends Component{
 
                             this.state.queue.map((order) => {
                             //Buttons will be floated to right of name.
+                            //This needs to be separated by pages, not same way news is, cause don't want to refresh everytime
                             return <ListGroupItem> {order.name} <ModelInfoBlock name= {order.name} duration={order.duration} cost = {order.cost} 
                             start = {order.start} end = {order.end}/>
 
